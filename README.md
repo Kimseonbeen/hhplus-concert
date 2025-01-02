@@ -10,3 +10,6 @@
 
 ## 3. 플로우 차트
 ### [플로우 차트](https://github.com/Kimseonbeen/hhplus-concert/wiki/%ED%94%8C%EB%A1%9C%EC%9A%B0-%EC%B0%A8%ED%8A%B8)
+
+## 4. ERD
+### [ERD](https://github.com/Kimseonbeen/hhplus-concert/wiki/ERD)
