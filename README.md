@@ -1,13 +1,12 @@
-## 프로젝트
+## 시나리오 선정
+- ### 콘서트 예약 서비스
 
-## Getting Started
+---
+## 1. Milestone
+### [3주차 마일스톤](https://github.com/users/Kimseonbeen/projects/2/views/3)
 
-### Prerequisites
+## 2. 시퀀스 다이어그램
+### [시퀀스 다이어그램](https://github.com/Kimseonbeen/hhplus-concert/wiki/%EC%8B%9C%ED%80%80%EC%8A%A4-%EB%8B%A4%EC%9D%B4%EC%96%B4%EA%B7%B8%EB%9E%A8)
 
-#### Running Docker Containers
-
-`local` profile 로 실행하기 위하여 인프라가 설정되어 있는 Docker 컨테이너를 실행해주셔야 합니다.
-
-```bash
-docker-compose up -d
-```
+## 3. 플로우 차트
+### [플로우 차트](https://github.com/Kimseonbeen/hhplus-concert/wiki/%ED%94%8C%EB%A1%9C%EC%9A%B0-%EC%B0%A8%ED%8A%B8)
