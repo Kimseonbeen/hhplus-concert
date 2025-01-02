@@ -40,7 +40,7 @@ public class ConcertController {
 
     // 예약 가능 콘서트 좌석 목록 조회
     @Operation(summary = "예약 가능 좌석 조회", description = "예약 가능한 좌석을 조회합니다")
-    @GetMapping("/seats")
+    @GetMapping("/{concertScheduleId}/seats")
     public ResponseEntity<ConcertSeatAvailableResponse> getConcertScheduleSeat(@PathVariable long userId,
                                                                                @Parameter(description = "대기열 토큰", required = true)
                                                                                @RequestHeader("Auth") String token) {
