@@ -1,5 +1,7 @@
 package kr.hhplus.be.server.queueToken.domain;
 
+import kr.hhplus.be.server.queueToken.domain.exception.QueueTokenError;
+import kr.hhplus.be.server.queueToken.domain.exception.QueueTokenErrorCode;
 import kr.hhplus.be.server.queueToken.presentation.dto.response.QueueTokenResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -41,5 +43,17 @@ public class QueueTokenService {
         }
 
         return QueueTokenResponse.of(queueToken, 0L);
+    }
+
+    public void validateToken(String token) {
+        QueueToken queueToken = queueTokenRepository.findByToken(token);
+
+        if (queueToken.isExpired()) {
+            throw new QueueTokenError(QueueTokenErrorCode.QUEUE_TOKEN_NOT_FOUND);
+        }
+
+        if (!queueToken.isActive()) {
+            throw new QueueTokenError(QueueTokenErrorCode.QUEUE_TOKEN_NOT_ACTIVE);
+        }
     }
 }
