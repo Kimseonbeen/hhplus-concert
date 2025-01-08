@@ -1,6 +1,8 @@
 package kr.hhplus.be.server.concert.domain;
 
 import kr.hhplus.be.server.common.exception.CustomException;
+import kr.hhplus.be.server.concert.domain.exception.ConcertError;
+import kr.hhplus.be.server.concert.domain.exception.ConcertErrorCode;
 import kr.hhplus.be.server.concert.presentation.dto.response.ConcertScheduleResponse;
 import kr.hhplus.be.server.concert.presentation.dto.response.ConcertSeatAvailableResponse;
 import lombok.RequiredArgsConstructor;
@@ -19,7 +21,7 @@ public class ConcertService {
 
     public List<ConcertScheduleResponse> getConcertSchedules(long concertScheduleId) {
         ConcertSchedule schedule = ConcertRepository.findById(concertScheduleId)
-                .orElseThrow(() -> new IllegalArgumentException("dsa"));
+                .orElseThrow(() -> new ConcertError(ConcertErrorCode.CONCERT_NOT_FOUND));
 
         return List.of(ConcertScheduleResponse.builder()
                 .concertScheduleId(schedule.getId())
@@ -31,7 +33,7 @@ public class ConcertService {
     public ConcertSeatAvailableResponse getAvailableSeats(Long concertScheduleId) {
         // 공연 일정 조회
         ConcertSchedule schedule = ConcertRepository.findById(concertScheduleId)
-                .orElseThrow(() -> new RuntimeException("Concert schedule not found"));
+                .orElseThrow(() -> new ConcertError(ConcertErrorCode.CONCERT_NOT_FOUND));
 
         // 예약 가능한 좌석 조회
         List<Integer> availableSeats = seatRepository.findByConcertScheduleIdAndStatus(
