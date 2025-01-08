@@ -49,4 +49,23 @@ public class QueueToken {
     public boolean isWaiting() {
         return this.status == QueueTokenStatus.WAITING;
     }
+
+    public boolean isExpired() {
+        return this.status == QueueTokenStatus.EXPIRED;
+    }
+
+    public boolean isActive() {
+        return status == QueueTokenStatus.ACTIVE;
+    }
+
+    public void expire() {
+        this.status = QueueTokenStatus.EXPIRED;
+    }
+
+    public void activate() {
+        this.status = QueueTokenStatus.ACTIVE;
+        this.expiredAt = LocalDateTime.now().plusMinutes(10);
+    }
+
+
 }

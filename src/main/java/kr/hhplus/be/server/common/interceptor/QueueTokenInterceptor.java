@@ -25,7 +25,6 @@ public class QueueTokenInterceptor implements HandlerInterceptor {
         }
 
         // 토큰 검증
-        // 토큰 상태 체크
         queueTokenService.validateToken(token);
 
         return true;

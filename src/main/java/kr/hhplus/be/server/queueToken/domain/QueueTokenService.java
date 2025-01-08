@@ -4,11 +4,16 @@ import kr.hhplus.be.server.queueToken.domain.exception.QueueTokenError;
 import kr.hhplus.be.server.queueToken.domain.exception.QueueTokenErrorCode;
 import kr.hhplus.be.server.queueToken.presentation.dto.response.QueueTokenResponse;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
+import java.util.List;
+
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class QueueTokenService {
 
     private final QueueTokenRepository queueTokenRepository;
@@ -55,5 +60,36 @@ public class QueueTokenService {
         if (!queueToken.isActive()) {
             throw new QueueTokenError(QueueTokenErrorCode.QUEUE_TOKEN_NOT_ACTIVE);
         }
+    }
+
+    // 만료된 ACTIVE 토큰 조회
+    public List<QueueToken> findExpiredActiveTokens() {
+        return queueTokenRepository.findByStatusAndExpiredAtBefore(
+                QueueTokenStatus.ACTIVE,
+                LocalDateTime.now()
+        );
+    }
+
+    // 토큰 만료 처리
+    public void expireToken(QueueToken token) {
+        token.expire();  // 상태만 EXPIRED로 변경
+        queueTokenRepository.save(token);
+    }
+
+    // 대기 토큰 활성화
+
+    /**
+     * findFirstByStatusOrderByIdAsc Query
+     * SELECT * FROM queue_token
+     * WHERE status = ?
+     * ORDER BY id ASC
+     * LIMIT 1
+     */
+    public void activateNextWaitingToken() {
+        queueTokenRepository.findFirstByStatusOrderByIdAsc(QueueTokenStatus.WAITING)
+                .ifPresent(token -> {
+                    token.activate();  // 상태만 ACTIVE로 변경
+                    queueTokenRepository.save(token);
+                });
     }
 }

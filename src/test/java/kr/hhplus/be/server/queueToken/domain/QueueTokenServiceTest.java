@@ -9,12 +9,16 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.time.LocalDateTime;
+import java.util.List;
+import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoMoreInteractions;
 
 @ExtendWith(MockitoExtension.class)
 class QueueTokenServiceTest {
@@ -138,6 +142,81 @@ class QueueTokenServiceTest {
         // when & then
         assertThatThrownBy(() -> queueTokenService.getQueueToken(token))
                 .isInstanceOf(RuntimeException.class);
+    }
+
+    @Test
+    @DisplayName("ACTIVE 상태이고 만료시간이 지난 토큰 목록을 조회한다")
+    void findExpiredActiveTokens_WhenTokensExpired_ReturnExpiredActiveTokens() {
+        // given
+        LocalDateTime now = LocalDateTime.now();
+        List<QueueToken> expiredTokens = List.of(
+                QueueToken.builder()
+                        .status(QueueTokenStatus.ACTIVE)
+                        .expiredAt(now.minusMinutes(11))    // 만료 시간 설정
+                        .build()
+        );
+
+        given(queueTokenRepository.findByStatusAndExpiredAtBefore(
+                eq(QueueTokenStatus.ACTIVE),
+                any(LocalDateTime.class))).willReturn(expiredTokens);
+
+        // when
+        List<QueueToken> result = queueTokenService.findExpiredActiveTokens();
+
+        // then
+        assertThat(result).hasSize(1);
+        verify(queueTokenRepository).findByStatusAndExpiredAtBefore(
+                any(QueueTokenStatus.class),
+                any(LocalDateTime.class)
+        );
+    }
+
+    @Test
+    @DisplayName("토큰의 상태를 EXPIRED로 변경하고 만료 처리한다")
+    void expireToken_WhenTokenActive_ChangeStatusToExpired() {
+        // given
+        QueueToken token = QueueToken.builder()
+                .status(QueueTokenStatus.ACTIVE)
+                .build();
+
+        // when
+        queueTokenService.expireToken(token);
+
+        // then
+        assertThat(token.getStatus()).isEqualTo(QueueTokenStatus.EXPIRED);
+    }
+
+    @Test
+    @DisplayName("가장 오래된 WAITING 토큰을 찾아서 ACTIVE로 변경하고 10분 뒤 만료되도록 설정한다")
+    void activateNextWaitingToken_WhenWaitingTokenExists_ChangeToActiveWithExpiration() {
+        // given
+        QueueToken waitingToken = QueueToken.builder()
+                .status(QueueTokenStatus.WAITING)
+                .build();
+
+        given(queueTokenRepository.findFirstByStatusOrderByIdAsc(QueueTokenStatus.WAITING))
+                .willReturn(Optional.of(waitingToken));
+
+        // when
+        queueTokenService.activateNextWaitingToken();
+
+        // then
+        assertThat(waitingToken.getStatus()).isEqualTo(QueueTokenStatus.ACTIVE);
+        assertThat(waitingToken.getExpiredAt()).isAfter(LocalDateTime.now());
+    }
+
+    @Test
+    @DisplayName("WAITING 상태인 토큰이 없을 경우 활성화 처리를 수행하지 않는다")
+    void activateNextWaitingToken_WhenNoWaitingToken_DoNothing() {
+        // given
+        given(queueTokenRepository.findFirstByStatusOrderByIdAsc(QueueTokenStatus.WAITING))
+                .willReturn(Optional.empty());
+
+        // when
+        queueTokenService.activateNextWaitingToken();
+
+        // then
+        verify(queueTokenRepository).findFirstByStatusOrderByIdAsc(QueueTokenStatus.WAITING);
     }
 
 }
