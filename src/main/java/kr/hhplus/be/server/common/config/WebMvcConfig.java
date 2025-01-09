@@ -14,8 +14,7 @@ public class WebMvcConfig implements WebMvcConfigurer {
     @Override
     public void addInterceptors(InterceptorRegistry registry) {
         registry.addInterceptor(queueTokenInterceptor)
-                .addPathPatterns("/api/concert/**")  // concert 시작하는 모든 경로에 적용
-                .addPathPatterns("/api/reservation/**");
+                .addPathPatterns("/api/concert/**", "/api/reservation/**");
                 //.excludePathPatterns("");  // 제외할 경로가 있다면 추가
     }
 

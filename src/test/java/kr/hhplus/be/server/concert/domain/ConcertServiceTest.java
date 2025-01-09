@@ -256,5 +256,38 @@ class ConcertServiceTest {
                 concertService.validateReservationAvailability(schedule, seat));
     }
 
+    @Test
+    @DisplayName("좌석 상태를 RESERVED로 변경한다")
+    void updateSeatStatus_Success() {
+        // given
+        Long seatId = 1L;
+        Seat seat = Seat.builder()
+                .id(seatId)
+                .status(SeatStatus.TEMPORARY)
+                .build();
+
+        given(seatRepository.findById(seatId))
+                .willReturn(Optional.of(seat));
+
+        // when
+        concertService.updateSeatStatus(seatId);
+
+        // then
+        assertEquals(SeatStatus.RESERVED, seat.getStatus());
+    }
+
+    @Test
+    @DisplayName("존재하지 않는 좌석 ID로 상태 변경 시도하면 예외가 발생한다")
+    void updateSeatStatus_SeatNotFound() {
+        // given
+        Long seatId = 999L;
+        given(seatRepository.findById(seatId))
+                .willReturn(Optional.empty());
+
+        // when & then
+        assertThrows(ConcertError.class,
+                () -> concertService.updateSeatStatus(seatId));
+    }
+
 
 }

@@ -9,6 +9,8 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import java.util.Optional;
+
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
@@ -55,5 +57,47 @@ class ReservationServiceTest {
         assertEquals(seat.getPrice(), result.getPrice());
         assertEquals(ReservationStatus.PENDING_PAYMENT, result.getStatus());
         verify(reservationRepository).save(any(Reservation.class));
+    }
+
+    @Test
+    @DisplayName("결제 대기 중인 예약을 조회한다")
+    void getPendingReservation_Success() {
+        // given
+        Long reservationId = 1L;
+        Reservation reservation = Reservation.builder()
+                .id(reservationId)
+                .status(ReservationStatus.PENDING_PAYMENT)
+                .build();
+
+        given(reservationRepository.findByIdAndStatus(reservationId, ReservationStatus.PENDING_PAYMENT))
+                .willReturn(Optional.of(reservation));
+
+        // when
+        Reservation result = reservationService.getPendingReservation(reservationId);
+
+        // then
+        assertNotNull(result);
+        assertEquals(reservationId, result.getId());
+        assertEquals(ReservationStatus.PENDING_PAYMENT, result.getStatus());
+    }
+
+    @Test
+    @DisplayName("예약 상태를 CONFIRMED로 변경한다")
+    void updateReservationStatus_Success() {
+        // given
+        Long reservationId = 1L;
+        Reservation reservation = Reservation.builder()
+                .id(reservationId)
+                .status(ReservationStatus.PENDING_PAYMENT)
+                .build();
+
+        given(reservationRepository.findByIdAndStatus(reservationId, ReservationStatus.PENDING_PAYMENT))
+                .willReturn(Optional.of(reservation));
+
+        // when
+        reservationService.updateReservationStatus(reservationId);
+
+        // then
+        assertEquals(ReservationStatus.CONFIRMED, reservation.getStatus());
     }
 }

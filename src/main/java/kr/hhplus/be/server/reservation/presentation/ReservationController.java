@@ -24,9 +24,6 @@ public class ReservationController {
     @PostMapping("/reserve")
     public ResponseEntity<ReservationResponse> createReserve(@RequestBody ReservationRequest request) {
 
-        System.out.println("ReservationController.createReserve");
-        System.out.println("request = " + request);
-
         ReservationResult reserve = reservationFacade.reserve(request.toCommand());
 
         return ResponseEntity.ok(ReservationResponse.from(reserve));

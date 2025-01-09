@@ -2,14 +2,18 @@ package kr.hhplus.be.server.reservation.domain;
 
 import jakarta.persistence.*;
 import kr.hhplus.be.server.concert.domain.Seat;
+import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
 
 @Entity
 @Getter
 @Builder
+@NoArgsConstructor
+@AllArgsConstructor
 public class Reservation {
 
     @Id
@@ -40,5 +44,9 @@ public class Reservation {
                 .status(ReservationStatus.PENDING_PAYMENT)
                 .expiredAt(LocalDateTime.now().plusMinutes(5))
                 .build();
+    }
+
+    public void complete() {
+        this.status = ReservationStatus.CONFIRMED;
     }
 }

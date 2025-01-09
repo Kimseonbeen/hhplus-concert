@@ -40,4 +40,8 @@ public class Seat {
     public void occupy() {
         this.status = SeatStatus.TEMPORARY;
     }
+
+    public void reserved() {
+        this.status = SeatStatus.RESERVED;
+    }
 }

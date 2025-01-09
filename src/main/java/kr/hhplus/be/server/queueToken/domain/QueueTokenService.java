@@ -33,6 +33,10 @@ public class QueueTokenService {
         return queueToken;
     }
 
+    public QueueToken findToken(String token) {
+        return queueTokenRepository.findByToken(token);
+    }
+
 
     public QueueTokenResponse getQueueToken(String token) {
 
@@ -72,7 +76,7 @@ public class QueueTokenService {
 
     // 토큰 만료 처리
     public void expireToken(QueueToken token) {
-        token.expire();  // 상태만 EXPIRED로 변경
+        token.expire();
         queueTokenRepository.save(token);
     }
 

@@ -68,4 +68,11 @@ public class ConcertService {
     public void occupySeat(Seat seat) {
         seat.occupy();
     }
+
+    public void updateSeatStatus(Long seatId) {
+        Seat seat = seatRepository.findById(seatId)
+                .orElseThrow(() -> new ConcertError(ConcertErrorCode.SEAT_NOT_FOUND));
+
+        seat.reserved();
+    }
 }

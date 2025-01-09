@@ -1,5 +1,7 @@
 INSERT INTO USERS (NAME) VALUES ('TEST1');
 
+INSERT INTO BALANCE (user_id, amount) VALUES (1, 1000000);
+
 INSERT INTO concert (name) VALUES
 ('IU 콘서트 2025');
 
