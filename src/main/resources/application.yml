@@ -6,12 +6,18 @@ spring:
   jpa:
     open-in-view: false
     show-sql: true
+    defer-datasource-initialization: true  # 테이블 만든뒤 data.sql 실행
     hibernate:
       ddl-auto: create
     properties:
       hibernate.timezone.default_storage: NORMALIZE_UTC
       hibernate.jdbc.time_zone: UTC
-
+  # 여기에 추가
+  sql:
+    init:
+      mode: always
+      data-locations: classpath:data.sql # 데이터 파일 위치
+      encoding: UTF-8
 ---
 spring.config.activate.on-profile: local, test
 
@@ -42,4 +48,3 @@ springdoc:
   show-actuator: true
   default-consumes-media-type: application/json
   default-produces-media-type: application/json
-

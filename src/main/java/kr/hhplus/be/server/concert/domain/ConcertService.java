@@ -16,11 +16,11 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class ConcertService {
 
-    private final ConcertRepository ConcertRepository;
+    private final ConcertRepository concertRepository;
     private final SeatRepository seatRepository;
 
-    public List<ConcertScheduleResponse> getConcertSchedules(long concertScheduleId) {
-        ConcertSchedule schedule = ConcertRepository.findById(concertScheduleId)
+    public List<ConcertScheduleResponse> getConcertSchedules(long concertId) {
+        ConcertSchedule schedule = concertRepository.findById(concertId)
                 .orElseThrow(() -> new ConcertError(ConcertErrorCode.CONCERT_NOT_FOUND));
 
         return List.of(ConcertScheduleResponse.builder()
@@ -32,7 +32,7 @@ public class ConcertService {
     @Transactional(readOnly = true)
     public ConcertSeatAvailableResponse getAvailableSeats(Long concertScheduleId) {
         // 공연 일정 조회
-        ConcertSchedule schedule = ConcertRepository.findById(concertScheduleId)
+        ConcertSchedule schedule = concertRepository.findById(concertScheduleId)
                 .orElseThrow(() -> new ConcertError(ConcertErrorCode.CONCERT_NOT_FOUND));
 
         // 예약 가능한 좌석 조회
@@ -48,5 +48,24 @@ public class ConcertService {
                 .date(schedule.getConcertDate())
                 .availableSeats(availableSeats)
                 .build();
+    }
+
+    public ConcertSchedule getSchedule(Long concertScheduleId) {
+        return concertRepository.findById(concertScheduleId)
+                .orElseThrow(() -> new ConcertError(ConcertErrorCode.CONCERT_NOT_FOUND));
+    }
+
+    public Seat getSeat(Long seatId) {
+        return seatRepository.findById(seatId)
+                .orElseThrow(() -> new ConcertError(ConcertErrorCode.SEAT_NOT_FOUND));
+    }
+
+    public void validateReservationAvailability(ConcertSchedule schedule, Seat seat) {
+        schedule.isAvailable();
+        seat.isAvailable();
+    }
+
+    public void occupySeat(Seat seat) {
+        seat.occupy();
     }
 }

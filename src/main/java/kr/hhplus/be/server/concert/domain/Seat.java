@@ -1,12 +1,18 @@
 package kr.hhplus.be.server.concert.domain;
 
 import jakarta.persistence.*;
+import kr.hhplus.be.server.concert.domain.exception.ConcertError;
+import kr.hhplus.be.server.concert.domain.exception.ConcertErrorCode;
+import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 
 @Entity
 @Getter
 @Builder
+@NoArgsConstructor
+@AllArgsConstructor
 public class Seat {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -24,4 +30,14 @@ public class Seat {
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private SeatStatus status;
+
+    public void isAvailable() {
+        if (this.status != SeatStatus.AVAILABLE) {
+            throw new ConcertError(ConcertErrorCode.SEAT_ALREADY_OCCUPIED);
+        }
+    }
+
+    public void occupy() {
+        this.status = SeatStatus.TEMPORARY;
+    }
 }

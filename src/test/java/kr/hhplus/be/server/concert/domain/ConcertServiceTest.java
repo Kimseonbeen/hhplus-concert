@@ -1,5 +1,6 @@
 package kr.hhplus.be.server.concert.domain;
 
+import kr.hhplus.be.server.concert.domain.exception.ConcertError;
 import kr.hhplus.be.server.concert.presentation.dto.response.ConcertScheduleResponse;
 import kr.hhplus.be.server.concert.presentation.dto.response.ConcertSeatAvailableResponse;
 import org.junit.jupiter.api.DisplayName;
@@ -15,6 +16,7 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.verify;
 
@@ -108,4 +110,151 @@ class ConcertServiceTest {
         verify(concertRepository).findById(scheduleId);
         verify(seatRepository).findByConcertScheduleIdAndStatus(scheduleId, SeatStatus.AVAILABLE);
     }
+
+    @Test
+    @DisplayName("스케줄 ID로 공연 스케줄 조회 시 성공적으로 조회된다")
+    void getSchedule_Success() {
+        // given
+        Long scheduleId = 1L;
+        ConcertSchedule schedule = ConcertSchedule.builder()
+                .id(scheduleId)
+                .concertDate(LocalDateTime.now().plusDays(1))
+                .build();
+
+        given(concertRepository.findById(scheduleId)).willReturn(Optional.of(schedule));
+
+        // when
+        ConcertSchedule result = concertService.getSchedule(scheduleId);
+
+        // then
+        assertNotNull(result);
+        assertEquals(scheduleId, result.getId());
+        verify(concertRepository).findById(scheduleId);
+    }
+
+    @Test
+    @DisplayName("존재하지 않는 스케줄 ID로 조회 시 ConcertError 예외가 발생한다")
+    void getSchedule_NotFound() {
+        // given
+        Long scheduleId = 999L;
+        given(concertRepository.findById(scheduleId)).willReturn(Optional.empty());
+
+        // when & then
+        assertThrows(ConcertError.class, () -> concertService.getSchedule(scheduleId));
+        verify(concertRepository).findById(scheduleId);
+    }
+
+    @Test
+    @DisplayName("좌석 ID로 좌석 정보를 성공적으로 조회한다")
+    void getSeat_Success() {
+        // given
+        Long seatId = 1L;
+        Seat seat = Seat.builder()
+                .id(seatId)
+                .seatNum(1)
+                .price(100000)
+                .status(SeatStatus.AVAILABLE)
+                .build();
+
+        given(seatRepository.findById(seatId)).willReturn(Optional.of(seat));
+
+        // when
+        Seat result = concertService.getSeat(seatId);
+
+        // then
+        assertNotNull(result);
+        assertEquals(seatId, result.getId());
+        verify(seatRepository).findById(seatId);
+    }
+
+    @Test
+    @DisplayName("존재하지 않는 좌석 ID로 조회 시 ConcertError 예외가 발생한다")
+    void getSeat_NotFound() {
+        // given
+        Long seatId = 999L;
+        given(seatRepository.findById(seatId)).willReturn(Optional.empty());
+
+        // when & then
+        assertThrows(ConcertError.class, () -> concertService.getSeat(seatId));
+        verify(seatRepository).findById(seatId);
+    }
+
+    @Test
+    @DisplayName("AVAILABLE 상태의 좌석을 TEMPORARY 상태로 성공적으로 변경한다")
+    void occupySeat_Success() {
+        // given
+        Seat seat = Seat.builder()
+                .id(1L)
+                .seatNum(1)
+                .status(SeatStatus.AVAILABLE)
+                .build();
+
+        // when
+        concertService.occupySeat(seat);
+
+        // then
+        assertEquals(SeatStatus.TEMPORARY, seat.getStatus());
+    }
+
+    @Test
+    @DisplayName("미래 날짜의 공연과 AVAILABLE 상태의 좌석으로 검증 시 성공한다")
+    void validateReservationAvailability_Success() {
+        // given
+        ConcertSchedule schedule = ConcertSchedule.builder()
+                .id(1L)
+                .concertDate(LocalDateTime.now().plusDays(1))
+                .build();
+
+        Seat seat = Seat.builder()
+                .id(1L)
+                .seatNum(1)
+                .status(SeatStatus.AVAILABLE)
+                .build();
+
+        // when & then
+        assertDoesNotThrow(() ->
+                concertService.validateReservationAvailability(schedule, seat));
+    }
+
+    @Test
+    @DisplayName("이미 지난 공연 날짜로 예약 시도하면 ConcertError 예외가 발생한다")
+    void validateReservationAvailability_ExpiredConcert() {
+        // given
+        ConcertSchedule schedule = ConcertSchedule.builder()
+                .id(1L)
+                .concertDate(LocalDateTime.now().minusDays(1))
+                .build();
+
+        Seat seat = Seat.builder()
+                .id(1L)
+                .seatNum(1)
+                .status(SeatStatus.AVAILABLE)
+                .build();
+
+        // when & then
+        assertThrows(ConcertError.class, () ->
+                concertService.validateReservationAvailability(schedule, seat));
+    }
+
+    @Test
+    @DisplayName("이미 점유된 좌석으로 예약 시도하면 ConcertError 예외가 발생한다")
+    void validateReservationAvailability_SeatNotAvailable() {
+        // given
+        ConcertSchedule schedule = ConcertSchedule.builder()
+                .id(1L)
+                .concertDate(LocalDateTime.now().plusDays(1))
+                .build();
+
+        Seat seat = Seat.builder()
+                .id(1L)
+                .seatNum(1)
+                .status(SeatStatus.TEMPORARY)
+                .build();
+
+        // when & then
+        assertThrows(ConcertError.class, () ->
+                concertService.validateReservationAvailability(schedule, seat));
+    }
+
+
 }

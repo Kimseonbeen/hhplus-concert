@@ -1,14 +1,36 @@
 package kr.hhplus.be.server.reservation.presentation.dto.response;
 
 import io.swagger.v3.oas.annotations.media.Schema;
+import kr.hhplus.be.server.concert.presentation.dto.response.SeatResponse;
+import kr.hhplus.be.server.reservation.application.dto.ReservationResult;
+import kr.hhplus.be.server.reservation.domain.ReservationStatus;
 import lombok.Builder;
+
+import java.time.LocalDateTime;
 
 @Builder
 @Schema(description = "예약 응답")
 public record ReservationResponse(
-        @Schema(description = "응답 메시지", example = "좌석 예약에 성공했습니다.")
-        String message,
+        Long reservationId,
+        Long concertId,
+        LocalDateTime concertAt,
+        SeatResponse seat,
+        ReservationStatus reservationStatus,
+        LocalDateTime expiredAt
+) {
+        public static ReservationResponse from(ReservationResult reservation) {
+                return ReservationResponse.builder()
+                        .reservationId(reservation.reservationId())
+                        .concertId(reservation.concertId())
+                        .concertAt(reservation.concertAt())
+                        .seat(SeatResponse.builder()
+                                .seatId(reservation.seat().getId())
+                                //.seatNo(reservation.seat().getSeatNum())
+                                .seatPrice(reservation.seat().getPrice())
+                                .build())
+                        .reservationStatus(reservation.status())
+                        .expiredAt(reservation.expiredAt())
+                        .build();
+        }
 
-        @Schema(description = "예약 ID", example = "1")
-        Long reservationId
-) {}
+}
