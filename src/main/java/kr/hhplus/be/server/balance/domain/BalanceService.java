@@ -27,7 +27,28 @@ public class BalanceService {
                 .amount(amount)          // 양수 그대로 저장
                 .type(BalanceHistoryType.DECREASE)  // 감소로 명시
                 .build();
+        balanceHistoryRepository.save(history);
+    }
+
+    @Transactional
+    public void increase(Long userId, int amount) {
+        Balance balance = balanceRepository.findByUserId(userId)
+                .orElseThrow(() -> new BalanceError(BalanceErrorCode.BALANCE_NOT_FOUND));
+
+        balance.increase(amount);
+
+        BalanceHistory history = BalanceHistory.builder()
+                .balanceId(balance.getId())
+                .amount(amount)
+                .type(BalanceHistoryType.INCREASE)
+                .build();
 
         balanceHistoryRepository.save(history);
     }
+
+    public Balance getBalance(Long userId) {
+        return balanceRepository.findByUserId(userId)
+                .orElseThrow(() -> new BalanceError(BalanceErrorCode.BALANCE_NOT_FOUND));
+    }
+
 }

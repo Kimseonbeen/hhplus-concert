@@ -71,4 +71,73 @@ class BalanceServiceTest {
                 () -> balanceService.decrease(userId, amount));
         verify(balanceHistoryRepository, never()).save(any());
     }
+
+    @Test
+    @DisplayName("잔액이 성공적으로 충전된다")
+    void increase_Success() {
+        // given
+        Long userId = 1L;
+        int originalAmount = 50000;
+        int chargeAmount = 100000;
+
+        Balance balance = Balance.builder()
+                .id(1L)
+                .userId(userId)
+                .amount(originalAmount)
+                .build();
+
+        given(balanceRepository.findByUserId(userId))
+                .willReturn(Optional.of(balance));
+
+        // when
+        balanceService.increase(userId, chargeAmount);
+
+        // then
+        assertEquals(originalAmount + chargeAmount, balance.getAmount());
+        verify(balanceHistoryRepository).save(any(BalanceHistory.class));
+    }
+
+    @Test
+    @DisplayName("충전 금액이 0 이하면 예외가 발생한다")
+    void increase_InvalidAmount() {
+        // given
+        Long userId = 1L;
+        int invalidAmount = -10000;
+
+        Balance balance = Balance.builder()
+                .id(1L)
+                .userId(userId)
+                .amount(50000)
+                .build();
+
+        given(balanceRepository.findByUserId(userId))
+                .willReturn(Optional.of(balance));
+
+        // when & then
+        assertThrows(BalanceError.class,
+                () -> balanceService.increase(userId, invalidAmount));
+        verify(balanceHistoryRepository, never()).save(any());
+    }
+
+    @Test
+    @DisplayName("사용자의 잔액을 조회한다")
+    void getBalance_Success() {
+        // given
+        Long userId = 1L;
+        Balance balance = Balance.builder()
+                .id(1L)
+                .userId(userId)
+                .amount(50000)
+                .build();
+
+        given(balanceRepository.findByUserId(userId))
+                .willReturn(Optional.of(balance));
+
+        // when
+        Balance result = balanceService.getBalance(userId);
+
+        // then
+        assertNotNull(result);
+        assertEquals(50000, result.getAmount());
+    }
 }

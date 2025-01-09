@@ -27,4 +27,11 @@ public class Balance {
         }
         this.amount -= amount;
     }
+
+    public void increase(int amount) {
+        if (amount <= 0) {
+            throw new BalanceError(BalanceErrorCode.INVALID_AMOUNT);
+        }
+        this.amount += amount;
+    }
 }
