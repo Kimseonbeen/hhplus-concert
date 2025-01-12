@@ -2,12 +2,10 @@ package kr.hhplus.be.server.common.interceptor;
 
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import kr.hhplus.be.server.queueToken.domain.QueueToken;
-import kr.hhplus.be.server.queueToken.domain.QueueTokenService;
+import kr.hhplus.be.server.queueToken.domain.service.QueueTokenService;
 import kr.hhplus.be.server.queueToken.domain.exception.QueueTokenError;
 import kr.hhplus.be.server.queueToken.domain.exception.QueueTokenErrorCode;
 import lombok.RequiredArgsConstructor;
-import org.hibernate.annotations.Comment;
 import org.springframework.stereotype.Component;
 import org.springframework.web.servlet.HandlerInterceptor;
 

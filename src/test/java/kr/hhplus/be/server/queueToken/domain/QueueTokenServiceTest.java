@@ -1,5 +1,9 @@
 package kr.hhplus.be.server.queueToken.domain;
 
+import kr.hhplus.be.server.queueToken.domain.model.QueueToken;
+import kr.hhplus.be.server.queueToken.domain.model.QueueTokenStatus;
+import kr.hhplus.be.server.queueToken.domain.repository.QueueTokenRepository;
+import kr.hhplus.be.server.queueToken.domain.service.QueueTokenService;
 import kr.hhplus.be.server.queueToken.presentation.dto.response.QueueTokenResponse;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -18,7 +22,6 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyNoMoreInteractions;
 
 @ExtendWith(MockitoExtension.class)
 class QueueTokenServiceTest {

@@ -1,17 +1,17 @@
 package kr.hhplus.be.server.payment.application;
 
 import jakarta.transaction.Transactional;
-import kr.hhplus.be.server.balance.domain.BalanceService;
-import kr.hhplus.be.server.concert.domain.ConcertService;
-import kr.hhplus.be.server.concert.domain.Seat;
+import kr.hhplus.be.server.balance.domain.service.BalanceService;
+import kr.hhplus.be.server.concert.domain.service.ConcertService;
+import kr.hhplus.be.server.concert.domain.model.Seat;
 import kr.hhplus.be.server.payment.application.dto.PaymentCommand;
 import kr.hhplus.be.server.payment.application.dto.PaymentResult;
-import kr.hhplus.be.server.payment.domain.Payment;
-import kr.hhplus.be.server.payment.domain.PaymentService;
-import kr.hhplus.be.server.queueToken.domain.QueueToken;
-import kr.hhplus.be.server.queueToken.domain.QueueTokenService;
-import kr.hhplus.be.server.reservation.domain.Reservation;
-import kr.hhplus.be.server.reservation.domain.ReservationService;
+import kr.hhplus.be.server.payment.domain.model.Payment;
+import kr.hhplus.be.server.payment.domain.service.PaymentService;
+import kr.hhplus.be.server.queueToken.domain.model.QueueToken;
+import kr.hhplus.be.server.queueToken.domain.service.QueueTokenService;
+import kr.hhplus.be.server.reservation.domain.model.Reservation;
+import kr.hhplus.be.server.reservation.domain.service.ReservationService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 

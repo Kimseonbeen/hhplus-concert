@@ -1,6 +1,12 @@
 package kr.hhplus.be.server.concert.domain;
 
 import kr.hhplus.be.server.concert.domain.exception.ConcertError;
+import kr.hhplus.be.server.concert.domain.model.ConcertSchedule;
+import kr.hhplus.be.server.concert.domain.model.Seat;
+import kr.hhplus.be.server.concert.domain.model.SeatStatus;
+import kr.hhplus.be.server.concert.domain.repository.ConcertRepository;
+import kr.hhplus.be.server.concert.domain.repository.SeatRepository;
+import kr.hhplus.be.server.concert.domain.service.ConcertService;
 import kr.hhplus.be.server.concert.presentation.dto.response.ConcertScheduleResponse;
 import kr.hhplus.be.server.concert.presentation.dto.response.ConcertSeatAvailableResponse;
 import org.junit.jupiter.api.DisplayName;

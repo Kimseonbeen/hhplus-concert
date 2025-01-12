@@ -1,6 +1,11 @@
 package kr.hhplus.be.server.balance.domain;
 
 import kr.hhplus.be.server.balance.domain.exception.BalanceError;
+import kr.hhplus.be.server.balance.domain.model.Balance;
+import kr.hhplus.be.server.balance.domain.model.BalanceHistory;
+import kr.hhplus.be.server.balance.domain.repository.BalanceHistoryRepository;
+import kr.hhplus.be.server.balance.domain.repository.BalanceRepository;
+import kr.hhplus.be.server.balance.domain.service.BalanceService;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;

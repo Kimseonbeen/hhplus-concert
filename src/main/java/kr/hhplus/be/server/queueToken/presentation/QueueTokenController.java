@@ -4,16 +4,12 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import kr.hhplus.be.server.queueToken.application.QueueTokenFacade;
-import kr.hhplus.be.server.queueToken.domain.QueueToken;
-import kr.hhplus.be.server.queueToken.domain.QueueTokenService;
-import kr.hhplus.be.server.queueToken.domain.QueueTokenStatus;
+import kr.hhplus.be.server.queueToken.domain.model.QueueToken;
 import kr.hhplus.be.server.queueToken.presentation.dto.request.QueueTokenRequest;
 import kr.hhplus.be.server.queueToken.presentation.dto.response.QueueTokenResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
-import java.time.LocalDateTime;
 
 @RestController
 @RequestMapping("/api/queue")

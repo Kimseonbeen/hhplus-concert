@@ -1,7 +1,7 @@
 package kr.hhplus.be.server.balance.presentation.dto.response;
 
 import io.swagger.v3.oas.annotations.media.Schema;
-import kr.hhplus.be.server.balance.domain.Balance;
+import kr.hhplus.be.server.balance.domain.model.Balance;
 import lombok.Builder;
 
 @Builder

@@ -1,6 +1,6 @@
 package kr.hhplus.be.server.payment.application.dto;
 
-import kr.hhplus.be.server.payment.domain.Payment;
+import kr.hhplus.be.server.payment.domain.model.Payment;
 
 import java.time.LocalDateTime;
 

@@ -1,8 +1,8 @@
 package kr.hhplus.be.server.queueToken.presentation.dto.response;
 
 import io.swagger.v3.oas.annotations.media.Schema;
-import kr.hhplus.be.server.queueToken.domain.QueueToken;
-import kr.hhplus.be.server.queueToken.domain.QueueTokenStatus;
+import kr.hhplus.be.server.queueToken.domain.model.QueueToken;
+import kr.hhplus.be.server.queueToken.domain.model.QueueTokenStatus;
 import lombok.Builder;
 import java.time.LocalDateTime;
 

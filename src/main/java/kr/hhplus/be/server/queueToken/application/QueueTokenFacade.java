@@ -1,9 +1,9 @@
 package kr.hhplus.be.server.queueToken.application;
 
-import kr.hhplus.be.server.queueToken.domain.QueueToken;
-import kr.hhplus.be.server.queueToken.domain.QueueTokenService;
+import kr.hhplus.be.server.queueToken.domain.model.QueueToken;
+import kr.hhplus.be.server.queueToken.domain.service.QueueTokenService;
 import kr.hhplus.be.server.queueToken.presentation.dto.response.QueueTokenResponse;
-import kr.hhplus.be.server.user.domain.UserService;
+import kr.hhplus.be.server.user.domain.service.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;

@@ -1,7 +1,11 @@
 package kr.hhplus.be.server.reservation.domain;
 
-import kr.hhplus.be.server.concert.domain.Seat;
-import kr.hhplus.be.server.concert.domain.SeatStatus;
+import kr.hhplus.be.server.concert.domain.model.Seat;
+import kr.hhplus.be.server.concert.domain.model.SeatStatus;
+import kr.hhplus.be.server.reservation.domain.model.Reservation;
+import kr.hhplus.be.server.reservation.domain.model.ReservationStatus;
+import kr.hhplus.be.server.reservation.domain.repository.ReservationRepository;
+import kr.hhplus.be.server.reservation.domain.service.ReservationService;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;

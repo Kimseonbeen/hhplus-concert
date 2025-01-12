@@ -3,7 +3,7 @@ package kr.hhplus.be.server.reservation.presentation.dto.response;
 import io.swagger.v3.oas.annotations.media.Schema;
 import kr.hhplus.be.server.concert.presentation.dto.response.SeatResponse;
 import kr.hhplus.be.server.reservation.application.dto.ReservationResult;
-import kr.hhplus.be.server.reservation.domain.ReservationStatus;
+import kr.hhplus.be.server.reservation.domain.model.ReservationStatus;
 import lombok.Builder;
 
 import java.time.LocalDateTime;

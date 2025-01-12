@@ -1,11 +1,8 @@
 package kr.hhplus.be.server.payment.domain;
 
-import kr.hhplus.be.server.concert.domain.Seat;
-import kr.hhplus.be.server.concert.domain.SeatRepository;
-import kr.hhplus.be.server.concert.domain.SeatStatus;
-import kr.hhplus.be.server.queueToken.domain.QueueToken;
-import kr.hhplus.be.server.queueToken.domain.QueueTokenRepository;
-import kr.hhplus.be.server.queueToken.domain.QueueTokenStatus;
+import kr.hhplus.be.server.payment.domain.model.Payment;
+import kr.hhplus.be.server.payment.domain.repository.PaymentRepository;
+import kr.hhplus.be.server.payment.domain.service.PaymentService;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -13,8 +10,6 @@ import static org.mockito.ArgumentMatchers.any;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-
-import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.BDDMockito.given;

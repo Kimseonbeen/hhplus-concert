@@ -1,8 +1,8 @@
 package kr.hhplus.be.server.queueToken.infrastructure;
 
-import kr.hhplus.be.server.queueToken.domain.QueueToken;
-import kr.hhplus.be.server.queueToken.domain.QueueTokenRepository;
-import kr.hhplus.be.server.queueToken.domain.QueueTokenStatus;
+import kr.hhplus.be.server.queueToken.domain.model.QueueToken;
+import kr.hhplus.be.server.queueToken.domain.repository.QueueTokenRepository;
+import kr.hhplus.be.server.queueToken.domain.model.QueueTokenStatus;
 import kr.hhplus.be.server.queueToken.domain.exception.QueueTokenError;
 import kr.hhplus.be.server.queueToken.domain.exception.QueueTokenErrorCode;
 import lombok.RequiredArgsConstructor;

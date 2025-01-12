@@ -2,8 +2,8 @@ package kr.hhplus.be.server.balance.presentation;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import kr.hhplus.be.server.balance.domain.Balance;
-import kr.hhplus.be.server.balance.domain.BalanceService;
+import kr.hhplus.be.server.balance.domain.model.Balance;
+import kr.hhplus.be.server.balance.domain.service.BalanceService;
 import kr.hhplus.be.server.balance.presentation.dto.response.BalanceResponse;
 import kr.hhplus.be.server.balance.presentation.dto.response.ChargeResponse;
 import lombok.RequiredArgsConstructor;
