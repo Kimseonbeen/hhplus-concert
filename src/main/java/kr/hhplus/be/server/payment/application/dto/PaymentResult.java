@@ -8,7 +8,7 @@ public record PaymentResult(
         Long paymentId,
         Long userId,
         Long reservationId,
-        Integer amount,
+        Long amount,
         LocalDateTime createdAt
 ) {
 

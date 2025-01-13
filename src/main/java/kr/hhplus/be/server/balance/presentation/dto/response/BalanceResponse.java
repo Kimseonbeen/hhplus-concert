@@ -8,7 +8,7 @@ import lombok.Builder;
 @Schema(description = "잔액 응답")
 public record BalanceResponse(
         Long userId,
-        int amount
+        Long amount
 ) {
         public static BalanceResponse from(Balance balance) {
                 return new BalanceResponse(

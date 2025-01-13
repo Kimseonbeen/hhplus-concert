@@ -5,8 +5,8 @@ import lombok.Builder;
 @Builder
 public record SeatResponse(
         Long seatId,
-        Integer seatNo,
-        Integer seatPrice
+        Long seatNo,
+        Long seatPrice
 ) {
 
 }

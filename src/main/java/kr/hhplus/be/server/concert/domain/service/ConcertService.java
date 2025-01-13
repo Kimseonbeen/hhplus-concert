@@ -1,13 +1,10 @@
 package kr.hhplus.be.server.concert.domain.service;
 
-import kr.hhplus.be.server.concert.domain.model.SeatAvailabilityInfo;
+import kr.hhplus.be.server.concert.domain.model.*;
 import kr.hhplus.be.server.concert.domain.repository.ConcertRepository;
 import kr.hhplus.be.server.concert.domain.repository.SeatRepository;
-import kr.hhplus.be.server.concert.domain.model.SeatStatus;
 import kr.hhplus.be.server.concert.domain.exception.ConcertError;
 import kr.hhplus.be.server.concert.domain.exception.ConcertErrorCode;
-import kr.hhplus.be.server.concert.domain.model.ConcertSchedule;
-import kr.hhplus.be.server.concert.domain.model.Seat;
 import kr.hhplus.be.server.concert.presentation.dto.response.ConcertScheduleResponse;
 import kr.hhplus.be.server.concert.presentation.dto.response.ConcertSeatAvailableResponse;
 import lombok.RequiredArgsConstructor;
@@ -26,6 +23,7 @@ public class ConcertService {
 
     public List<ConcertScheduleResponse> getConcertSchedules(long concertId) {
         ConcertSchedule schedule = concertRepository.findById(concertId)
+                .filter(concertSchedule -> concertSchedule.getStatus() == ConcertScheduleStatus.AVAILABLE)
                 .orElseThrow(() -> new ConcertError(ConcertErrorCode.CONCERT_NOT_FOUND));
 
         return List.of(ConcertScheduleResponse.builder()

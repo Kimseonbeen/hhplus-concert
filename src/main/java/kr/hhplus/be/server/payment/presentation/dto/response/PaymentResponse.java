@@ -13,7 +13,7 @@ public record PaymentResponse(
         Long paymentId,
         Long userId,
         Long reservationId,
-        Integer amount
+        Long amount
 
 ) {
         public static PaymentResponse from(PaymentResult payment) {
