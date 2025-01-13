@@ -30,7 +30,7 @@ class PaymentServiceTest {
         // given
         Long reservationId = 1L;
         Long userId = 1L;
-        int amount = 100000;
+        Long amount = 100000L;
 
         Payment expectedPayment = Payment.builder()
                 .id(1L)
