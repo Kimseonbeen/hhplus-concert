@@ -1,11 +1,14 @@
 package kr.hhplus.be.server.reservation.presentation;
 
 import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import kr.hhplus.be.server.reservation.application.ReservationFacade;
+import kr.hhplus.be.server.reservation.application.dto.PaymentResult;
 import kr.hhplus.be.server.reservation.application.dto.ReservationResult;
+
+import kr.hhplus.be.server.reservation.presentation.dto.request.PaymentRequest;
 import kr.hhplus.be.server.reservation.presentation.dto.request.ReservationRequest;
+import kr.hhplus.be.server.reservation.presentation.dto.response.PaymentResponse;
 import kr.hhplus.be.server.reservation.presentation.dto.response.ReservationResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -27,5 +30,16 @@ public class ReservationController {
         ReservationResult reserve = reservationFacade.reserve(request.toCommand());
 
         return ResponseEntity.ok(ReservationResponse.from(reserve));
+    }
+
+    // 콘서트 좌석 결제
+    @Operation(summary = "콘서트 좌석 결제", description = "콘서트 좌석을 결제합니다")
+    @PostMapping("/payment")
+    public ResponseEntity<PaymentResponse> createPayment(@RequestHeader("Auth") String token,
+                                                         @RequestBody PaymentRequest request) {
+
+        PaymentResult payment = reservationFacade.completePayment(token, request.toCommand());
+
+        return ResponseEntity.ok(PaymentResponse.from(payment));
     }
 }

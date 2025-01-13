@@ -76,8 +76,6 @@ public class ConcertService {
         return SeatAvailabilityInfo.from(schedule, seat);
     }
 
-
-
     public void occupySeat(Long seatId) {
         Seat seat = seatRepository.findById(seatId)
                 .orElseThrow(() -> new ConcertError(ConcertErrorCode.SEAT_NOT_FOUND));

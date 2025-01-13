@@ -1,8 +1,7 @@
-package kr.hhplus.be.server.payment.presentation.dto.request;
+package kr.hhplus.be.server.reservation.presentation.dto.request;
 
 import io.swagger.v3.oas.annotations.media.Schema;
-import kr.hhplus.be.server.payment.application.dto.PaymentCommand;
-import kr.hhplus.be.server.reservation.application.dto.ReservationCommand;
+import kr.hhplus.be.server.reservation.application.dto.PaymentCommand;
 
 @Schema(description = "결제 요청")
 public record PaymentRequest(
