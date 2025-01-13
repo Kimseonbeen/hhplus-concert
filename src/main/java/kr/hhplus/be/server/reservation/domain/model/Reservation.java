@@ -7,6 +7,7 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 @Entity
@@ -27,7 +28,7 @@ public class Reservation {
     private Long seatId;
 
     @Column
-    private Integer price;
+    private BigDecimal price;
 
     @Enumerated(EnumType.STRING)
     @Column
@@ -36,11 +37,11 @@ public class Reservation {
     @Column(name = "expired_at")
     private LocalDateTime expiredAt;
 
-    public static Reservation createReservation(Seat seat, Long userId) {
+    public static Reservation createReservation(Long seatId, BigDecimal price, Long userId) {
         return Reservation.builder()
                 .userId(userId)
-                .seatId(seat.getId())
-                .price(seat.getPrice())
+                .seatId(seatId)
+                .price(price)
                 .status(ReservationStatus.PENDING_PAYMENT)
                 .expiredAt(LocalDateTime.now().plusMinutes(5))
                 .build();

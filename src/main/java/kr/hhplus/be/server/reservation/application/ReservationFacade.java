@@ -1,8 +1,7 @@
 package kr.hhplus.be.server.reservation.application;
 
-import kr.hhplus.be.server.concert.domain.model.ConcertSchedule;
+import kr.hhplus.be.server.concert.domain.model.SeatAvailabilityInfo;
 import kr.hhplus.be.server.concert.domain.service.ConcertService;
-import kr.hhplus.be.server.concert.domain.model.Seat;
 import kr.hhplus.be.server.reservation.application.dto.ReservationCommand;
 import kr.hhplus.be.server.reservation.application.dto.ReservationResult;
 import kr.hhplus.be.server.reservation.domain.model.Reservation;
@@ -21,28 +20,37 @@ public class ReservationFacade {
 
     @Transactional
     public ReservationResult reserve(ReservationCommand command) {
+        
+        // 좌석 예약 가능 여부 확인
+        SeatAvailabilityInfo seatAvailabilityInfo = concertService.validateAndReservationInfo(
+                command.scheduleId(),
+                command.seatId()
+        );
+        
+        // 예약 실행
+        Reservation reservation = processReservation(seatAvailabilityInfo, command.userId());
 
-        // 1. 공연과 좌석 정보 조회
-        ConcertSchedule schedule = concertService.getSchedule(command.scheduleId());
-        Seat seat = concertService.getSeat(command.seatId());
-
-        // 2. 예약 가능 상태 검증
-        concertService.validateReservationAvailability(schedule, seat);
-
-        // 3. 예약 생성
-        Reservation reservation = reservationService.createReservation(seat,command.userId());
-
-        // 4. 좌석 임시 점유
-        concertService.occupySeat(seat);
-
-        // 5. 응답 생성
+        // 응답 생성
         return ReservationResult.builder()
                 .reservationId(reservation.getId())
-                .concertId(schedule.getConcertId())
-                .concertAt(schedule.getConcertDate())
-                .seat(seat)
+                .concertId(seatAvailabilityInfo.concertId())
+                .concertAt(seatAvailabilityInfo.concertDate())
+                .seatId(seatAvailabilityInfo.seatId())
+                .price(seatAvailabilityInfo.price())
                 .status(reservation.getStatus())
                 .expiredAt(LocalDateTime.now().plusMinutes(5))
                 .build();
+    }
+
+    private Reservation processReservation(SeatAvailabilityInfo seatAvailabilityInfo, Long userId) {
+        Reservation reservation = reservationService.createReservation(
+                seatAvailabilityInfo.seatId(),
+                seatAvailabilityInfo.price(),
+                userId
+        );
+
+        concertService.occupySeat(seatAvailabilityInfo.seatId());
+
+        return reservation;
     }
 }

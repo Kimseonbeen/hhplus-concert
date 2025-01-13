@@ -13,6 +13,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import java.math.BigDecimal;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -37,7 +38,7 @@ class ReservationServiceTest {
         Seat seat = Seat.builder()
                 .id(1L)
                 .seatNum(1)
-                .price(100000)
+                .price(new BigDecimal("100000"))
                 .status(SeatStatus.AVAILABLE)
                 .build();
 
@@ -52,7 +53,7 @@ class ReservationServiceTest {
         given(reservationRepository.save(any(Reservation.class))).willReturn(expectedReservation);
 
         // when
-        Reservation result = reservationService.createReservation(seat, userId);
+        Reservation result = reservationService.createReservation(seat.getId(), seat.getPrice(), userId);
 
         // then
         assertNotNull(result);

@@ -16,6 +16,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
@@ -158,7 +159,7 @@ class ConcertServiceTest {
         Seat seat = Seat.builder()
                 .id(seatId)
                 .seatNum(1)
-                .price(100000)
+                .price(new BigDecimal("100000"))
                 .status(SeatStatus.AVAILABLE)
                 .build();
 
@@ -196,7 +197,7 @@ class ConcertServiceTest {
                 .build();
 
         // when
-        concertService.occupySeat(seat);
+        concertService.occupySeat(seat.getId());
 
         // then
         assertEquals(SeatStatus.TEMPORARY, seat.getStatus());

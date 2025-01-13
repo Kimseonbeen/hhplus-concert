@@ -1,5 +1,6 @@
 package kr.hhplus.be.server.concert.domain.service;
 
+import kr.hhplus.be.server.concert.domain.model.SeatAvailabilityInfo;
 import kr.hhplus.be.server.concert.domain.repository.ConcertRepository;
 import kr.hhplus.be.server.concert.domain.repository.SeatRepository;
 import kr.hhplus.be.server.concert.domain.model.SeatStatus;
@@ -69,7 +70,20 @@ public class ConcertService {
         seat.isAvailable();
     }
 
-    public void occupySeat(Seat seat) {
+    public SeatAvailabilityInfo validateAndReservationInfo(Long scheduleId, Long seatId) {
+        ConcertSchedule schedule = getSchedule(scheduleId);
+        Seat seat = getSeat(seatId);
+        validateReservationAvailability(schedule, seat);
+
+        return SeatAvailabilityInfo.from(schedule, seat);
+    }
+
+
+
+    public void occupySeat(Long seatId) {
+        Seat seat = seatRepository.findById(seatId)
+                .orElseThrow(() -> new ConcertError(ConcertErrorCode.SEAT_NOT_FOUND));
+
         seat.occupy();
     }
 
