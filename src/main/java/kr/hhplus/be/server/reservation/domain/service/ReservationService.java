@@ -1,6 +1,5 @@
 package kr.hhplus.be.server.reservation.domain.service;
 
-import kr.hhplus.be.server.concert.domain.model.Seat;
 import kr.hhplus.be.server.reservation.domain.exception.ReservationError;
 import kr.hhplus.be.server.reservation.domain.exception.ReservationErrorCode;
 import kr.hhplus.be.server.reservation.domain.model.Reservation;
