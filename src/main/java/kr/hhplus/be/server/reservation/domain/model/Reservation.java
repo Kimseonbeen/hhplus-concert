@@ -1,13 +1,11 @@
 package kr.hhplus.be.server.reservation.domain.model;
 
 import jakarta.persistence.*;
-import kr.hhplus.be.server.concert.domain.model.Seat;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
-import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 @Entity
@@ -28,7 +26,7 @@ public class Reservation {
     private Long seatId;
 
     @Column
-    private BigDecimal price;
+    private Long price;
 
     @Enumerated(EnumType.STRING)
     @Column
@@ -37,7 +35,7 @@ public class Reservation {
     @Column(name = "expired_at")
     private LocalDateTime expiredAt;
 
-    public static Reservation createReservation(Long seatId, BigDecimal price, Long userId) {
+    public static Reservation createReservation(Long seatId, Long price, Long userId) {
         return Reservation.builder()
                 .userId(userId)
                 .seatId(seatId)

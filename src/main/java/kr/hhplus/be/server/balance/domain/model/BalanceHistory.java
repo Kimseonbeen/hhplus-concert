@@ -15,7 +15,7 @@ public class BalanceHistory {
     @Column(name = "balance_id")
     private Long balanceId;
 
-    private Integer amount;
+    private Long amount;
 
     @Enumerated(EnumType.STRING)
     private BalanceHistoryType type;

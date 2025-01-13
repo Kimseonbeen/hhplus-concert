@@ -26,12 +26,12 @@ public class Payment {
     private Long reservationId;
 
     @Column
-    private Integer amount;
+    private Long amount;
 
     @Column
     private LocalDateTime createdAt;
 
-    public static Payment createPayment(long reservationId, Long userId, int amount) {
+    public static Payment createPayment(long reservationId, Long userId, Long amount) {
         return Payment.builder()
                 .reservationId(reservationId)
                 .userId(userId)

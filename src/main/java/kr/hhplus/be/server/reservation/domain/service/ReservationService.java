@@ -9,15 +9,13 @@ import kr.hhplus.be.server.reservation.domain.repository.ReservationRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
-import java.math.BigDecimal;
-
 @Service
 @RequiredArgsConstructor
 public class ReservationService {
 
     private final ReservationRepository reservationRepository;
 
-    public Reservation createReservation(Long seatId, BigDecimal price, Long userId) {
+    public Reservation createReservation(Long seatId, Long price, Long userId) {
         // 2. 새로운 예약 생성
         Reservation reservation = Reservation.createReservation(seatId, price, userId);
 

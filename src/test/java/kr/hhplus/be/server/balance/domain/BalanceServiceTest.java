@@ -12,7 +12,6 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -38,11 +37,11 @@ class BalanceServiceTest {
     void decrease_Success() {
         // given
         Long userId = 1L;
-        Integer amount = 50000;
+        Long amount = 50000L;
         Balance balance = Balance.builder()
                 .id(1L)
                 .userId(userId)
-                .amount(100000)
+                .amount(100000L)
                 .build();
 
         given(balanceRepository.findByUserId(userId))
@@ -61,11 +60,11 @@ class BalanceServiceTest {
     void decrease_InsufficientBalance() {
         // given
         Long userId = 1L;
-        Integer amount = 150000;
+        Long amount = 150000L;
         Balance balance = Balance.builder()
                 .id(1L)
                 .userId(userId)
-                .amount(100000)
+                .amount(100000L)
                 .build();
 
         given(balanceRepository.findByUserId(userId))
@@ -82,8 +81,8 @@ class BalanceServiceTest {
     void increase_Success() {
         // given
         Long userId = 1L;
-        int originalAmount = 50000;
-        int chargeAmount = 100000;
+        Long originalAmount = 50000L;
+        Long chargeAmount = 100000L;
 
         Balance balance = Balance.builder()
                 .id(1L)
@@ -107,12 +106,12 @@ class BalanceServiceTest {
     void increase_InvalidAmount() {
         // given
         Long userId = 1L;
-        int invalidAmount = -10000;
+        Long invalidAmount = -10000L;
 
         Balance balance = Balance.builder()
                 .id(1L)
                 .userId(userId)
-                .amount(50000)
+                .amount(50000L)
                 .build();
 
         given(balanceRepository.findByUserId(userId))
@@ -132,7 +131,7 @@ class BalanceServiceTest {
         Balance balance = Balance.builder()
                 .id(1L)
                 .userId(userId)
-                .amount(50000)
+                .amount(50000L)
                 .build();
 
         given(balanceRepository.findByUserId(userId))

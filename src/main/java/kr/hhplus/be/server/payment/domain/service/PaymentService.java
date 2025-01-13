@@ -6,6 +6,7 @@ import kr.hhplus.be.server.payment.domain.repository.PaymentRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+
 @Service
 @RequiredArgsConstructor
 public class PaymentService {
@@ -13,7 +14,7 @@ public class PaymentService {
     private final PaymentRepository paymentRepository;
     private final SeatRepository seatRepository;
 
-    public Payment processPayment(Long reservationId, Long userId, int amount) {
+    public Payment processPayment(Long reservationId, Long userId, Long amount) {
 
         Payment payment = Payment.createPayment(reservationId, userId, amount);
 

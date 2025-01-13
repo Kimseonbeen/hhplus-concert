@@ -2,7 +2,6 @@ package kr.hhplus.be.server.concert.domain.model;
 
 import lombok.Builder;
 
-import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 @Builder
@@ -12,7 +11,7 @@ public record SeatAvailabilityInfo(
         Long concertId,
         Long seatId,
         Integer seatNum,
-        BigDecimal price
+        Long price
 
 ) {
 

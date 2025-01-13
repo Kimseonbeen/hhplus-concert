@@ -19,16 +19,16 @@ public class Balance {
     @Column(name = "user_id", nullable = false)
     private Long userId;
 
-    private Integer amount;
+    private Long amount;
 
-    public void decrease(Integer amount) {
+    public void decrease(Long amount) {
         if (this.amount < amount) {
             throw new BalanceError(BalanceErrorCode.INSUFFICIENT_BALANCE);
         }
         this.amount -= amount;
     }
 
-    public void increase(int amount) {
+    public void increase(Long amount) {
         if (amount <= 0) {
             throw new BalanceError(BalanceErrorCode.INVALID_AMOUNT);
         }

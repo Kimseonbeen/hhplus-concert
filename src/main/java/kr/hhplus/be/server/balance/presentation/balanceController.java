@@ -30,7 +30,7 @@ public class balanceController {
 
     @Operation(summary = "잔액 충전", description = "사용자의 잔액을 충전합니다")
     @PostMapping("/{userid}/charge")
-    public ResponseEntity<ChargeResponse> chargeBalance(@PathVariable Long userId, @RequestBody int amount) {
+    public ResponseEntity<ChargeResponse> chargeBalance(@PathVariable Long userId, @RequestBody Long amount) {
 
         balanceService.increase(userId, amount);
 

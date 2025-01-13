@@ -16,7 +16,6 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
@@ -159,7 +158,7 @@ class ConcertServiceTest {
         Seat seat = Seat.builder()
                 .id(seatId)
                 .seatNum(1)
-                .price(new BigDecimal("100000"))
+                .price(100000L)
                 .status(SeatStatus.AVAILABLE)
                 .build();
 

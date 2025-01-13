@@ -18,7 +18,7 @@ public class BalanceService {
     private final BalanceRepository balanceRepository;
     private final BalanceHistoryRepository balanceHistoryRepository;
 
-    public void decrease(Long userId, Integer amount) {
+    public void decrease(Long userId, Long amount) {
         // 1. 잔액 조회
         Balance balance = balanceRepository.findByUserId(userId)
                 .orElseThrow(() -> new BalanceError(BalanceErrorCode.BALANCE_NOT_FOUND));
@@ -36,7 +36,7 @@ public class BalanceService {
     }
 
     @Transactional
-    public void increase(Long userId, int amount) {
+    public void increase(Long userId, Long amount) {
         Balance balance = balanceRepository.findByUserId(userId)
                 .orElseThrow(() -> new BalanceError(BalanceErrorCode.BALANCE_NOT_FOUND));
 

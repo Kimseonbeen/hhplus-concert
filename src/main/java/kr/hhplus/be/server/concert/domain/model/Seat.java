@@ -8,8 +8,6 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
-import java.math.BigDecimal;
-
 @Entity
 @Getter
 @Builder
@@ -27,7 +25,7 @@ public class Seat {
     private Integer seatNum;
 
     @Column(nullable = false)
-    private BigDecimal price;
+    private Long price;
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
