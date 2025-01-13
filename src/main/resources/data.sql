@@ -5,8 +5,9 @@ INSERT INTO BALANCE (user_id, amount) VALUES (1, 1000000);
 INSERT INTO concert (name) VALUES
 ('IU 콘서트 2025');
 
-INSERT INTO concert_schedule (concert_id, concert_date) VALUES
-(1, '2025-02-01 19:30:00');
+INSERT INTO concert_schedule (concert_id, concert_date, status) VALUES
+(1, '2025-02-01 19:30:00', 'AVAILABLE'),
+(1, '2025-02-02 19:30:00', 'SOLDOUT');
 
 INSERT INTO seat (concert_schedule_id, seat_num, price, status) VALUES
 (1, 1, 100000, 'AVAILABLE'),

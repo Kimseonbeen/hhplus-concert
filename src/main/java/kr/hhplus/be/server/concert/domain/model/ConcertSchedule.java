@@ -26,6 +26,10 @@ public class ConcertSchedule {
     @Column(nullable = false)
     private LocalDateTime concertDate;
 
+    @Column(nullable = false)
+    @Enumerated(EnumType.STRING)
+    private ConcertScheduleStatus status;
+
     public void isAvailable() {
         if (concertDate.isBefore(LocalDateTime.now())) {
             throw new ConcertError(ConcertErrorCode.SEAT_ALREADY_OCCUPIED);
