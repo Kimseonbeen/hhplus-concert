@@ -1,10 +1,9 @@
 package kr.hhplus.be.server.queueToken.presentation.dto.response;
 
 import io.swagger.v3.oas.annotations.media.Schema;
-import kr.hhplus.be.server.queueToken.domain.QueueTokenStatus;
+import kr.hhplus.be.server.queueToken.domain.model.QueueToken;
+import kr.hhplus.be.server.queueToken.domain.model.QueueTokenStatus;
 import lombok.Builder;
-import lombok.Getter;
-
 import java.time.LocalDateTime;
 
 @Builder
@@ -12,7 +11,27 @@ import java.time.LocalDateTime;
 public record QueueTokenResponse(
         String token,
         QueueTokenStatus status,
-        int num,
+        long num,
         LocalDateTime expiredAt
 ) {
+
+    public static QueueTokenResponse from(QueueToken queueToken) {
+        return QueueTokenResponse.builder()
+                .token(queueToken.getToken())
+                .status(queueToken.getStatus())
+                //.num(queueToken.getWaitingNumber())
+                .expiredAt(queueToken.getExpiredAt())
+                .build();
+   }
+
+    public static QueueTokenResponse of(QueueToken queueToken, long waitingNum) {
+        return QueueTokenResponse.builder()
+                .token(queueToken.getToken())
+                .status(queueToken.getStatus())
+                .num(waitingNum)
+                .expiredAt(queueToken.getExpiredAt())
+                .build();
+    }
+
+
 }
