@@ -37,13 +37,15 @@ public class QueueTokenService {
     }
 
     public QueueToken findToken(String token) {
-        return queueTokenRepository.findByToken(token);
+        return queueTokenRepository.findByToken(token)
+                .orElseThrow(() -> new QueueTokenError(QueueTokenErrorCode.QUEUE_TOKEN_NOT_FOUND));
     }
 
 
     public QueueTokenResponse getQueueToken(String token) {
 
-        QueueToken queueToken = queueTokenRepository.findByToken(token);
+        QueueToken queueToken = queueTokenRepository.findByToken(token)
+                .orElseThrow(() -> new QueueTokenError(QueueTokenErrorCode.QUEUE_TOKEN_NOT_FOUND));
 
         // 토큰 상태가 waiting
         if (queueToken.isWaiting()) {
@@ -58,7 +60,8 @@ public class QueueTokenService {
     }
 
     public void validateToken(String token) {
-        QueueToken queueToken = queueTokenRepository.findByToken(token);
+        QueueToken queueToken = queueTokenRepository.findByToken(token)
+                .orElseThrow(() -> new QueueTokenError(QueueTokenErrorCode.QUEUE_TOKEN_NOT_FOUND));
 
         if (queueToken.isExpired()) {
             throw new QueueTokenError(QueueTokenErrorCode.QUEUE_TOKEN_NOT_FOUND);

@@ -98,7 +98,7 @@ class QueueTokenServiceTest {
                 .expiredAt(LocalDateTime.now().plusMinutes(10))
                 .build();
 
-        given(queueTokenRepository.findByToken(token)).willReturn(queueToken);
+        given(queueTokenRepository.findByToken(token)).willReturn(Optional.of(queueToken));
 
         // when
         QueueTokenResponse response = queueTokenService.getQueueToken(token);
@@ -121,7 +121,7 @@ class QueueTokenServiceTest {
                 .status(QueueTokenStatus.WAITING)
                 .build();
 
-        given(queueTokenRepository.findByToken(token)).willReturn(queueToken);
+        given(queueTokenRepository.findByToken(token)).willReturn(Optional.of(queueToken));
         given(queueTokenRepository.countByStatusAndIdLessThan(QueueTokenStatus.WAITING, 5L))
                 .willReturn(2L);
 
