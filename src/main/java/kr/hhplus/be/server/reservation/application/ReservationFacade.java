@@ -63,21 +63,21 @@ public class ReservationFacade {
         // 2. 좌석 금액 조회
         Seat seat = concertService.getSeat(reservation.getSeatId());
 
-        // 3. 결제 처리
+        // 3. 금액 변경
+        balanceService.decrease(command.userId(), seat.getPrice());
+
+        // 4. 좌석 점유 처리
+        concertService.updateSeatStatus(reservation.getSeatId());
+
+        // 5. 예약 상태 변경 처리
+        reservationService.updateReservationStatus(reservation.getId());
+
+        // 6. 결제 처리
         Payment payment = paymentService.processPayment(
                 command.reservationId(),
                 command.userId(),
                 seat.getPrice()
         );
-
-        // 4. 금액 변경
-        balanceService.decrease(command.userId(), seat.getPrice());
-
-        // 5. 좌석 점유 처리
-        concertService.updateSeatStatus(reservation.getSeatId());
-
-        // 6. 예약 상태 변경 처리
-        reservationService.updateReservationStatus(reservation.getId());
 
         // 7. 토큰 만료 처리
         QueueToken queueToken = queueTokenService.findToken(token);
