@@ -17,7 +17,7 @@ public class QueueTokenInterceptor implements HandlerInterceptor {
 
     @Override
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) {
-        String token = request.getHeader("Auth");
+        String token = request.getHeader("TOKEN");
         if (token == null || token.isEmpty()) {
             throw new QueueTokenError(QueueTokenErrorCode.QUEUE_TOKEN_NOT_FOUND);
         }
