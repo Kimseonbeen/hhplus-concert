@@ -24,7 +24,6 @@ public class ConcertController {
     @GetMapping("/{concertId}/schedules")
     public ResponseEntity<List<ConcertScheduleResponse>> getConcertSchedule(@PathVariable long concertId) {
 
-
         // 공연 일정 조회
         List<ConcertScheduleResponse> response = concertService.getConcertSchedules(concertId);
 

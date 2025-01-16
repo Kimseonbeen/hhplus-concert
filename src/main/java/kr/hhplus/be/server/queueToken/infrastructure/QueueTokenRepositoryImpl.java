@@ -45,4 +45,9 @@ public class QueueTokenRepositoryImpl implements QueueTokenRepository {
     public Optional<QueueToken> findFirstByStatusOrderByIdAsc(QueueTokenStatus status) {
         return queueTokenJpaRepository.findFirstByStatusOrderByIdAsc(status);
     }
+
+    @Override
+    public Optional<QueueToken> findByUserId(Long userId) {
+        return queueTokenJpaRepository.findByUserId(userId);
+    }
 }

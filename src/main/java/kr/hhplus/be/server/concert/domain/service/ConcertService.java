@@ -11,6 +11,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -24,6 +25,10 @@ public class ConcertService {
     public List<ConcertScheduleResponse> getConcertSchedules(long concertId) {
         ConcertSchedule schedule = concertRepository.findById(concertId)
                 .filter(concertSchedule -> concertSchedule.getStatus() == ConcertScheduleStatus.AVAILABLE)
+                .filter(concertSchedule -> {
+                    concertSchedule.isAvailable();  // 날짜 검증
+                    return true;
+                })
                 .orElseThrow(() -> new ConcertError(ConcertErrorCode.CONCERT_NOT_FOUND));
 
         return List.of(ConcertScheduleResponse.builder()
@@ -53,40 +58,26 @@ public class ConcertService {
                 .build();
     }
 
-    public ConcertSchedule getSchedule(Long concertScheduleId) {
-        return concertRepository.findById(concertScheduleId)
-                .orElseThrow(() -> new ConcertError(ConcertErrorCode.CONCERT_NOT_FOUND));
-    }
+//    public ConcertSchedule getSchedule(Long concertScheduleId) {
+//        return concertRepository.findById(concertScheduleId)
+//                .orElseThrow(() -> new ConcertError(ConcertErrorCode.CONCERT_NOT_FOUND));
+//    }
 
-    public Seat getSeat(Long seatId) {
-        return seatRepository.findById(seatId)
-                .orElseThrow(() -> new ConcertError(ConcertErrorCode.SEAT_NOT_FOUND));
-    }
+//    public Seat getSeat(Long seatId) {
+//        return seatRepository.findById(seatId)
+//                .orElseThrow(() -> new ConcertError(ConcertErrorCode.SEAT_NOT_FOUND));
+//    }
 
-    public void validateReservationAvailability(ConcertSchedule schedule, Seat seat) {
-        schedule.isAvailable();
-        seat.isAvailable();
-    }
-
-    public SeatAvailabilityInfo validateAndReservationInfo(Long scheduleId, Long seatId) {
-        ConcertSchedule schedule = getSchedule(scheduleId);
-        Seat seat = getSeat(seatId);
-        validateReservationAvailability(schedule, seat);
-
-        return SeatAvailabilityInfo.from(schedule, seat);
-    }
-
-    public void occupySeat(Long seatId) {
+    public SeatResult reserveSeat(Long seatId) {
         Seat seat = seatRepository.findById(seatId)
                 .orElseThrow(() -> new ConcertError(ConcertErrorCode.SEAT_NOT_FOUND));
 
-        seat.occupy();
-    }
-
-    public void updateSeatStatus(Long seatId) {
-        Seat seat = seatRepository.findById(seatId)
-                .orElseThrow(() -> new ConcertError(ConcertErrorCode.SEAT_NOT_FOUND));
+        if (!seat.isReserved()) {
+            throw new ConcertError(ConcertErrorCode.SEAT_ALREADY_OCCUPIED);
+        }
 
         seat.reserved();
+
+        return SeatResult.from(seatRepository.save(seat));
     }
 }

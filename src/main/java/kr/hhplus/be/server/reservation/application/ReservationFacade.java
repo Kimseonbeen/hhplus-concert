@@ -2,7 +2,7 @@ package kr.hhplus.be.server.reservation.application;
 
 import kr.hhplus.be.server.balance.domain.service.BalanceService;
 import kr.hhplus.be.server.concert.domain.model.Seat;
-import kr.hhplus.be.server.concert.domain.model.SeatAvailabilityInfo;
+import kr.hhplus.be.server.concert.domain.model.SeatResult;
 import kr.hhplus.be.server.concert.domain.service.ConcertService;
 import kr.hhplus.be.server.payment.domain.model.Payment;
 import kr.hhplus.be.server.payment.domain.service.PaymentService;
@@ -33,68 +33,35 @@ public class ReservationFacade {
     @Transactional
     public ReservationResult reserve(ReservationCommand command) {
         
-        // 좌석 예약 가능 여부 확인
-        SeatAvailabilityInfo seatAvailabilityInfo = concertService.validateAndReservationInfo(
-                command.scheduleId(),
-                command.seatId()
-        );
+        // 좌석 예약
+        SeatResult seatResult = concertService.reserveSeat(command.seatId());
         
-        // 예약 실행
-        Reservation reservation = processReservation(seatAvailabilityInfo, command.userId());
+        // 예약 생성
+        reservationService.createReservation(command.userId(), seatResult.seatId(), seatResult.price());
 
         // 응답 생성
-        return ReservationResult.builder()
-                .reservationId(reservation.getId())
-                .concertId(seatAvailabilityInfo.concertId())
-                .concertAt(seatAvailabilityInfo.concertDate())
-                .seatId(seatAvailabilityInfo.seatId())
-                .price(seatAvailabilityInfo.price())
-                .status(reservation.getStatus())
-                .expiredAt(LocalDateTime.now().plusMinutes(5))
-                .build();
+        return ReservationResult.of(command.userId(), seatResult.seatId(), seatResult.price());
     }
 
     @Transactional
-    public PaymentResult completePayment(String token, PaymentCommand command) {
+    public PaymentResult completePayment(PaymentCommand command) {
 
-        // 1. 예약 정보 조회
-        Reservation reservation = reservationService.getPendingReservation(command.reservationId());
+        // 잔액 감소
+        balanceService.decrease(command.userId(), command.amount());
+        
+        // 예약 완료
+        reservationService.completeReserve(command.reservationId());
 
-        // 2. 좌석 금액 조회
-        Seat seat = concertService.getSeat(reservation.getSeatId());
-
-        // 3. 금액 변경
-        balanceService.decrease(command.userId(), seat.getPrice());
-
-        // 4. 좌석 점유 처리
-        concertService.updateSeatStatus(reservation.getSeatId());
-
-        // 5. 예약 상태 변경 처리
-        reservationService.updateReservationStatus(reservation.getId());
-
-        // 6. 결제 처리
+        // 결제 처리
         Payment payment = paymentService.processPayment(
                 command.reservationId(),
                 command.userId(),
-                seat.getPrice()
+                command.amount()
         );
 
-        // 7. 토큰 만료 처리
-        QueueToken queueToken = queueTokenService.findToken(token);
-        queueTokenService.expireToken(queueToken);
+        // 토큰 만료 처리
+        queueTokenService.expireToken(command.userId());
 
         return PaymentResult.from(payment);
-    }
-
-    private Reservation processReservation(SeatAvailabilityInfo seatAvailabilityInfo, Long userId) {
-        Reservation reservation = reservationService.createReservation(
-                seatAvailabilityInfo.seatId(),
-                seatAvailabilityInfo.price(),
-                userId
-        );
-
-        concertService.occupySeat(seatAvailabilityInfo.seatId());
-
-        return reservation;
     }
 }

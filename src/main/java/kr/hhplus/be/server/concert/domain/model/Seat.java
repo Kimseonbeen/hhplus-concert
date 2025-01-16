@@ -31,17 +31,13 @@ public class Seat {
     @Column(nullable = false)
     private SeatStatus status;
 
-    public void isAvailable() {
-        if (this.status != SeatStatus.AVAILABLE) {
-            throw new ConcertError(ConcertErrorCode.SEAT_ALREADY_OCCUPIED);
-        }
-    }
-
-    public void occupy() {
-        this.status = SeatStatus.TEMPORARY;
+    public boolean isReserved() {
+        return this.status == SeatStatus.AVAILABLE;
     }
 
     public void reserved() {
         this.status = SeatStatus.RESERVED;
     }
+
+
 }

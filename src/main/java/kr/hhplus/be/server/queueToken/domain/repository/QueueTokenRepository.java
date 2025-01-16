@@ -15,4 +15,5 @@ public interface QueueTokenRepository {
     List<QueueToken> findByStatusAndExpiredAtBefore(QueueTokenStatus status, LocalDateTime dateTime);
     Optional<QueueToken> findFirstByStatusOrderByIdAsc(QueueTokenStatus status);
 
+    Optional<QueueToken> findByUserId(Long userId);
 }

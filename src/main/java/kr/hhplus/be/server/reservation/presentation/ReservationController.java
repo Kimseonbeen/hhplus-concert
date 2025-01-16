@@ -35,10 +35,9 @@ public class ReservationController {
     // 콘서트 좌석 결제
     @Operation(summary = "콘서트 좌석 결제", description = "콘서트 좌석을 결제합니다")
     @PostMapping("/payment")
-    public ResponseEntity<PaymentResponse> createPayment(@RequestHeader("Auth") String token,
-                                                         @RequestBody PaymentRequest request) {
+    public ResponseEntity<PaymentResponse> createPayment(@RequestBody PaymentRequest request) {
 
-        PaymentResult payment = reservationFacade.completePayment(token, request.toCommand());
+        PaymentResult payment = reservationFacade.completePayment(request.toCommand());
 
         return ResponseEntity.ok(PaymentResponse.from(payment));
     }

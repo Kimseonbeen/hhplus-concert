@@ -36,12 +36,6 @@ public class QueueTokenService {
         return queueToken;
     }
 
-    public QueueToken findToken(String token) {
-        return queueTokenRepository.findByToken(token)
-                .orElseThrow(() -> new QueueTokenError(QueueTokenErrorCode.QUEUE_TOKEN_NOT_FOUND));
-    }
-
-
     public QueueTokenResponse getQueueToken(String token) {
 
         QueueToken queueToken = queueTokenRepository.findByToken(token)
@@ -81,7 +75,10 @@ public class QueueTokenService {
     }
 
     // 토큰 만료 처리
-    public void expireToken(QueueToken token) {
+    public void expireToken(Long userId) {
+        QueueToken token = queueTokenRepository.findByUserId(userId)
+                .orElseThrow(() -> new QueueTokenError(QueueTokenErrorCode.QUEUE_TOKEN_NOT_FOUND));
+
         token.expire();
         queueTokenRepository.save(token);
     }
