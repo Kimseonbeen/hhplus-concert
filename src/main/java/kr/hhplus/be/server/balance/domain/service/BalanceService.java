@@ -27,8 +27,6 @@ public class BalanceService {
         Balance balance = balanceRepository.findByUserId(userId)
                 .orElseThrow(() -> new BalanceError(BalanceErrorCode.BALANCE_NOT_FOUND));
 
-        System.out.println("balance = " + balance);
-
         // 2. 잔액 감소
         balance.decrease(amount);  // 잔액이 부족하면 여기서 예외 발생
 
