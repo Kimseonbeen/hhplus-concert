@@ -16,7 +16,7 @@ public class QueueTokenScheduler {
 
     private final QueueTokenService queueTokenService;
 
-    @Scheduled(fixedDelay = 1000)
+    //@Scheduled(fixedDelay = 1000)
     public void QueueTokenStatusChange() {
         log.info("start schedule");
 
@@ -28,7 +28,7 @@ public class QueueTokenScheduler {
                 log.info("Expired token processing - Token: {}", expiredToken.getToken());
 
                 // 2. 토큰 만료 처리
-                queueTokenService.expireToken(expiredToken);
+                queueTokenService.expireToken(expiredToken.getUserId());
 
                 // 3. 다음 WAITING 토큰을 ACTIVE로 변경
                 queueTokenService.activateNextWaitingToken();

@@ -5,7 +5,7 @@ import lombok.Builder;
 import java.time.LocalDateTime;
 
 @Builder
-public record SeatAvailabilityInfo(
+public record SeatResult(
         Long scheduleId,
         LocalDateTime concertDate,
         Long concertId,
@@ -15,11 +15,8 @@ public record SeatAvailabilityInfo(
 
 ) {
 
-    public static SeatAvailabilityInfo from(ConcertSchedule schedule, Seat seat) {
-        return SeatAvailabilityInfo.builder()
-                .scheduleId(schedule.getId())
-                .concertDate(schedule.getConcertDate())
-                .concertId(schedule.getConcertId())
+    public static SeatResult from(Seat seat) {
+        return SeatResult.builder()
                 .seatId(seat.getId())
                 .seatNum(seat.getSeatNum())
                 .price(seat.getPrice())

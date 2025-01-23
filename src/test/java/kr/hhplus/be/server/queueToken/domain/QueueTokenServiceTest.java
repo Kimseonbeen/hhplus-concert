@@ -178,12 +178,17 @@ class QueueTokenServiceTest {
     @DisplayName("토큰의 상태를 EXPIRED로 변경하고 만료 처리한다")
     void expireToken_WhenTokenActive_ChangeStatusToExpired() {
         // given
+        Long userId = 1L;
         QueueToken token = QueueToken.builder()
+                .userId(userId)
                 .status(QueueTokenStatus.ACTIVE)
                 .build();
 
+        given(queueTokenRepository.findByUserId(userId)).willReturn(Optional.of(token));
+        given(queueTokenRepository.save(token)).willReturn(token);
+
         // when
-        queueTokenService.expireToken(token);
+        queueTokenService.expireToken(userId);
 
         // then
         assertThat(token.getStatus()).isEqualTo(QueueTokenStatus.EXPIRED);

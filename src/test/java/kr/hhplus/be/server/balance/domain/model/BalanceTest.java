@@ -4,7 +4,6 @@ import kr.hhplus.be.server.balance.domain.exception.BalanceError;
 import kr.hhplus.be.server.balance.domain.exception.BalanceErrorCode;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import org.mockito.Mock;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -80,8 +79,5 @@ class BalanceTest {
 
         // then
         assertEquals(balanceError.getMessage(), BalanceErrorCode.INVALID_AMOUNT.getMsg());
-
-
     }
-
 }

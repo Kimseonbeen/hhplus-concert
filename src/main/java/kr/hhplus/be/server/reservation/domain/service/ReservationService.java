@@ -14,7 +14,7 @@ public class ReservationService {
 
     private final ReservationRepository reservationRepository;
 
-    public Reservation createReservation(Long seatId, Long price, Long userId) {
+    public Reservation createReservation(Long userId, Long seatId, Long price) {
         // 2. 새로운 예약 생성
         Reservation reservation = Reservation.createReservation(seatId, price, userId);
 
@@ -22,12 +22,7 @@ public class ReservationService {
         return reservationRepository.save(reservation);
     }
 
-    public Reservation getPendingReservation(Long reservationId) {
-        return reservationRepository.findByIdAndStatus(reservationId, ReservationStatus.PENDING_PAYMENT)
-                .orElseThrow(() -> new ReservationError(ReservationErrorCode.RESERVATION_NOT_FOUND));
-    }
-
-    public void updateReservationStatus(Long reservationId) {
+    public void completeReserve(Long reservationId) {
         Reservation reservation = reservationRepository.findByIdAndStatus(reservationId, ReservationStatus.PENDING_PAYMENT)
                 .orElseThrow(() -> new ReservationError(ReservationErrorCode.RESERVATION_NOT_FOUND));
 

@@ -10,15 +10,15 @@ import static org.junit.jupiter.api.Assertions.*;
 class SeatTest {
 
     @Test
-    @DisplayName("좌석이 이미 점유되어 있으면 ConcertErrorCode를 반환한다.")
+    @DisplayName("이미 예약된 좌석을 예약 시도하면 SEAT_ALREADY_OCCUPIED 에러가 발생한다")
     void isAvailable_WhenSeatOccupied_ThrowsException() {
         // given
         Seat seat = Seat.builder()
-                .status(SeatStatus.TEMPORARY)
+                .status(SeatStatus.RESERVED)
                 .build();
 
         // when
-        ConcertError concertError = assertThrows(ConcertError.class, seat::isAvailable);
+        ConcertError concertError = assertThrows(ConcertError.class, seat::reserved);
 
         // then
         assertEquals(concertError.getMessage(), ConcertErrorCode.SEAT_ALREADY_OCCUPIED.getMsg());
@@ -26,22 +26,7 @@ class SeatTest {
     }
 
     @Test
-    @DisplayName("좌석의 상태를 임시예약 상태로 변경한다.")
-    void occpuy_ChangeToTemporaryStatus() {
-        // given
-        Seat seat = Seat.builder()
-                .status(SeatStatus.AVAILABLE)
-                .build();
-
-        // when
-        seat.occupy();
-
-        // then
-        assertEquals(seat.getStatus(), SeatStatus.TEMPORARY);
-    }
-
-    @Test
-    @DisplayName("좌석의 상태를 결제 상태로 변경한다.")
+    @DisplayName("예약 가능한 좌석을 예약하면 상태가 RESERVED로 변경된다")
     void reserved_ChangeToReservedStatus() {
         // given
         Seat seat = Seat.builder()

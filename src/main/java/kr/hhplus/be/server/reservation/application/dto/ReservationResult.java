@@ -7,13 +7,15 @@ import java.time.LocalDateTime;
 
 @Builder
 public record ReservationResult(
-        Long concertId,
-        Long reservationId,
-        LocalDateTime concertAt,
+        Long userId,
         Long seatId,
-        Long price,
-        ReservationStatus status,
-        LocalDateTime expiredAt
+        Long price
 
 ) {
+    // 팩토리 메서드
+    public static ReservationResult of(Long userId, Long seatId, Long price) {
+        return new ReservationResult(userId, seatId, price);
+    }
+
+
 }

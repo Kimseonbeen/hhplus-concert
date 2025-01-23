@@ -64,8 +64,8 @@ class ReservationServiceTest {
     }
 
     @Test
-    @DisplayName("결제 대기 중인 예약을 조회한다")
-    void getPendingReservation_Success() {
+    @DisplayName("결제 대기 상태의 예약을 완료 상태로 변경한다")
+    void completeReserve_WhenPendingPayment_ChangeStatusToConfirmed() {
         // given
         Long reservationId = 1L;
         Reservation reservation = Reservation.builder()
@@ -73,35 +73,16 @@ class ReservationServiceTest {
                 .status(ReservationStatus.PENDING_PAYMENT)
                 .build();
 
-        given(reservationRepository.findByIdAndStatus(reservationId, ReservationStatus.PENDING_PAYMENT))
-                .willReturn(Optional.of(reservation));
+        given(reservationRepository.findByIdAndStatus(
+                reservationId,
+                ReservationStatus.PENDING_PAYMENT
+        )).willReturn(Optional.of(reservation));
 
         // when
-        Reservation result = reservationService.getPendingReservation(reservationId);
+        reservationService.completeReserve(reservationId);
 
         // then
-        assertNotNull(result);
-        assertEquals(reservationId, result.getId());
-        assertEquals(ReservationStatus.PENDING_PAYMENT, result.getStatus());
-    }
-
-    @Test
-    @DisplayName("예약 상태를 CONFIRMED로 변경한다")
-    void updateReservationStatus_Success() {
-        // given
-        Long reservationId = 1L;
-        Reservation reservation = Reservation.builder()
-                .id(reservationId)
-                .status(ReservationStatus.PENDING_PAYMENT)
-                .build();
-
-        given(reservationRepository.findByIdAndStatus(reservationId, ReservationStatus.PENDING_PAYMENT))
-                .willReturn(Optional.of(reservation));
-
-        // when
-        reservationService.updateReservationStatus(reservationId);
-
-        // then
-        assertEquals(ReservationStatus.CONFIRMED, reservation.getStatus());
+        assertEquals(reservation.getStatus(), ReservationStatus.CONFIRMED);
+        verify(reservationRepository).findByIdAndStatus(reservationId, ReservationStatus.PENDING_PAYMENT);
     }
 }

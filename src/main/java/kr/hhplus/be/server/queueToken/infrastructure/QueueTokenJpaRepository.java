@@ -14,4 +14,5 @@ public interface QueueTokenJpaRepository extends JpaRepository<QueueToken, Long>
     long countByStatusAndIdLessThan(QueueTokenStatus status, long userId);
     List<QueueToken> findByStatusAndExpiredAtBefore(QueueTokenStatus status, LocalDateTime dateTime);
     Optional<QueueToken> findFirstByStatusOrderByIdAsc(QueueTokenStatus status);
+    Optional<QueueToken> findByUserId(Long userId);
 }
