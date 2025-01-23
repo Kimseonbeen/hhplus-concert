@@ -18,6 +18,9 @@ public class Seat {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @Version
+    private Long version;
+
     @Column(name = "concert_schedule_id", nullable = false)
     private Long concertScheduleId;
 
@@ -31,11 +34,10 @@ public class Seat {
     @Column(nullable = false)
     private SeatStatus status;
 
-    public boolean isReserved() {
-        return this.status == SeatStatus.AVAILABLE;
-    }
-
     public void reserved() {
+        if (!(this.status == SeatStatus.AVAILABLE)) {
+            throw new ConcertError(ConcertErrorCode.SEAT_ALREADY_OCCUPIED);
+        }
         this.status = SeatStatus.RESERVED;
     }
 
