@@ -1,11 +1,10 @@
 package kr.hhplus.be.server.concert.domain;
 
-import kr.hhplus.be.server.concert.domain.exception.ConcertError;
 import kr.hhplus.be.server.concert.domain.model.ConcertSchedule;
 import kr.hhplus.be.server.concert.domain.model.ConcertScheduleStatus;
 import kr.hhplus.be.server.concert.domain.model.Seat;
 import kr.hhplus.be.server.concert.domain.model.SeatStatus;
-import kr.hhplus.be.server.concert.domain.repository.ConcertRepository;
+import kr.hhplus.be.server.concert.domain.repository.ConcertScheduleRepository;
 import kr.hhplus.be.server.concert.domain.repository.SeatRepository;
 import kr.hhplus.be.server.concert.domain.service.ConcertService;
 import kr.hhplus.be.server.concert.presentation.dto.response.ConcertScheduleResponse;
@@ -23,7 +22,6 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.verify;
 
@@ -31,7 +29,7 @@ import static org.mockito.Mockito.verify;
 class ConcertServiceTest {
 
     @Mock
-    private ConcertRepository concertRepository;
+    private ConcertScheduleRepository concertScheduleRepository;
 
     @Mock
     private SeatRepository seatRepository;
@@ -52,7 +50,7 @@ class ConcertServiceTest {
                 .status(ConcertScheduleStatus.AVAILABLE)
                 .build();
 
-        given(concertRepository.findById(concertId)).willReturn(Optional.of(schedule));
+        given(concertScheduleRepository.findById(concertId)).willReturn(Optional.of(schedule));
 
         // when
         List<ConcertScheduleResponse> result = concertService.getConcertSchedules(concertId);
@@ -61,7 +59,7 @@ class ConcertServiceTest {
         assertThat(result).hasSize(1);
         assertThat(result.get(0).concertScheduleId()).isEqualTo(concertId);
         assertThat(result.get(0).concertDate()).isEqualTo(concertDate);
-        verify(concertRepository).findById(concertId);
+        verify(concertScheduleRepository).findById(concertId);
     }
 
     @Test
@@ -97,7 +95,7 @@ class ConcertServiceTest {
                 .filter(seat -> seat.getStatus() == SeatStatus.AVAILABLE)
                 .collect(Collectors.toList());
 
-        given(concertRepository.findById(scheduleId)).willReturn(Optional.of(schedule));
+        given(concertScheduleRepository.findById(scheduleId)).willReturn(Optional.of(schedule));
         given(seatRepository.findByConcertScheduleIdAndStatus(scheduleId, SeatStatus.AVAILABLE))
                 .willReturn(availableSeats);
 
@@ -110,7 +108,7 @@ class ConcertServiceTest {
         assertThat(result.availableSeats()).containsExactly(1, 2);  // (3, 4번) 좌석 제외
         assertThat(result.availableSeats()).doesNotContain(3);  // RESERVED 좌석 미포함 확인
 
-        verify(concertRepository).findById(scheduleId);
+        verify(concertScheduleRepository).findById(scheduleId);
         verify(seatRepository).findByConcertScheduleIdAndStatus(scheduleId, SeatStatus.AVAILABLE);
     }
 }
