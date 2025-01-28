@@ -1,6 +1,5 @@
 package kr.hhplus.be.server.balance.domain.service;
 
-import jakarta.transaction.Transactional;
 import kr.hhplus.be.server.balance.domain.exception.BalanceError;
 import kr.hhplus.be.server.balance.domain.exception.BalanceErrorCode;
 import kr.hhplus.be.server.balance.domain.model.Balance;
@@ -8,8 +7,11 @@ import kr.hhplus.be.server.balance.domain.model.BalanceHistory;
 import kr.hhplus.be.server.balance.domain.model.BalanceHistoryType;
 import kr.hhplus.be.server.balance.domain.repository.BalanceHistoryRepository;
 import kr.hhplus.be.server.balance.domain.repository.BalanceRepository;
+import kr.hhplus.be.server.common.annotation.DistributedLock;
 import lombok.RequiredArgsConstructor;
+import org.redisson.api.RedissonClient;
 import org.springframework.stereotype.Service;
+
 
 @Service
 @RequiredArgsConstructor
@@ -17,7 +19,9 @@ public class BalanceService {
 
     private final BalanceRepository balanceRepository;
     private final BalanceHistoryRepository balanceHistoryRepository;
+    private final RedissonClient redissonClient;
 
+    @DistributedLock(key = "'point :' + #userId")
     public void decrease(Long userId, Long amount) {
         // 1. 잔액 조회
         Balance balance = balanceRepository.findByUserId(userId)
@@ -35,7 +39,7 @@ public class BalanceService {
         balanceHistoryRepository.save(history);
     }
 
-    @Transactional
+    @DistributedLock(key = "'point :' + #userId")
     public void increase(Long userId, Long amount) {
         Balance balance = balanceRepository.findByUserId(userId)
                 .orElseThrow(() -> new BalanceError(BalanceErrorCode.BALANCE_NOT_FOUND));
