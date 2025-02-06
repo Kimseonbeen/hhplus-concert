@@ -56,7 +56,9 @@ public class ReservationFacade {
         );
 
         // 토큰 만료 처리
-        queueTokenService.expireToken(command.userId());
+        queueTokenService.expireToken(command.token());
+
+        // 결재 완료 후, 해당 콘서트 스케쥴이 매진이라면, 상태 값을 변경
 
         return PaymentResult.from(payment);
     }

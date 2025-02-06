@@ -24,11 +24,11 @@ public record QueueTokenResponse(
                 .build();
    }
 
-    public static QueueTokenResponse of(QueueToken queueToken, long waitingNum) {
+    public static QueueTokenResponse of(QueueToken queueToken) {
         return QueueTokenResponse.builder()
                 .token(queueToken.getToken())
                 .status(queueToken.getStatus())
-                .num(waitingNum)
+                .num(queueToken.getPosition())
                 .expiredAt(queueToken.getExpiredAt())
                 .build();
     }
