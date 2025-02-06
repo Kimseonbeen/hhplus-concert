@@ -38,19 +38,31 @@ class ConcertServiceTest {
     private ConcertService concertService;
 
     @Test
-    @DisplayName("특정 ID로 조회시 해당 공연 일정이 반환된다")
+    @DisplayName("콘서트 1번 아이디로 조회시 예약가능한 공연 일정이 반환된다")
     void getConcertSchedules_ReturnAllSchedules() {
         // given
         Long concertId = 1L;
-        LocalDateTime concertDate = LocalDateTime.now().plusDays(1);
+        LocalDateTime concertDate = LocalDateTime.now();
 
-        ConcertSchedule schedule = ConcertSchedule.builder()
-                .id(concertId)
-                .concertDate(concertDate)
-                .status(ConcertScheduleStatus.AVAILABLE)
-                .build();
+        List<ConcertSchedule> allConcerts = List.of(
+                ConcertSchedule.builder()   // 예약가능
+                        .id(concertId)
+                        .concertDate(concertDate.plusDays(1))
+                        .status(ConcertScheduleStatus.AVAILABLE)
+                        .build(),
+                ConcertSchedule.builder()   // SOLDOUT 상태라 예약 불가능
+                        .id(concertId)
+                        .concertDate(concertDate.plusDays(1))
+                        .status(ConcertScheduleStatus.SOLDOUT)
+                        .build(),
+                ConcertSchedule.builder()   // 예약 가능 기간이 지나 예약 불가능
+                        .id(concertId)
+                        .concertDate(concertDate.minusDays(2))
+                        .status(ConcertScheduleStatus.AVAILABLE)
+                        .build()
+        );
 
-        given(concertScheduleRepository.findById(concertId)).willReturn(Optional.of(schedule));
+        given(concertScheduleRepository.findByConcertId(concertId)).willReturn(allConcerts);
 
         // when
         List<ConcertScheduleResponse> result = concertService.getConcertSchedules(concertId);
@@ -58,9 +70,9 @@ class ConcertServiceTest {
         // then
         assertThat(result).hasSize(1);
         assertThat(result.get(0).concertScheduleId()).isEqualTo(concertId);
-        assertThat(result.get(0).concertDate()).isEqualTo(concertDate);
-        verify(concertScheduleRepository).findById(concertId);
+        verify(concertScheduleRepository).findByConcertId(concertId);
     }
+
 
     @Test
     @DisplayName("공연 좌석 목록 조회 시 AVAILABLE 상태의 좌석만 반환되고 RESERVED 상태의 좌석은 제외된다")
