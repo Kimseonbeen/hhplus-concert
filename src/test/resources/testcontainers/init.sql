@@ -1,8 +1,6 @@
 -- User table
 CREATE TABLE users (
-    id BIGINT PRIMARY KEY AUTO_INCREMENT,
-    name VARCHAR(255),
-    version BIGINT
+    id BIGINT PRIMARY KEY AUTO_INCREMENT
 );
 
 -- Balance table

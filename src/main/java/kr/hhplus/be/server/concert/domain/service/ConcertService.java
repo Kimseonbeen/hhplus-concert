@@ -3,7 +3,7 @@ package kr.hhplus.be.server.concert.domain.service;
 import kr.hhplus.be.server.concert.domain.model.*;
 import kr.hhplus.be.server.concert.domain.repository.ConcertScheduleRepository;
 import kr.hhplus.be.server.concert.domain.repository.SeatRepository;
-import kr.hhplus.be.server.concert.domain.exception.ConcertError;
+import kr.hhplus.be.server.concert.domain.exception.ConcertException;
 import kr.hhplus.be.server.concert.domain.exception.ConcertErrorCode;
 import kr.hhplus.be.server.concert.presentation.dto.response.ConcertScheduleResponse;
 import kr.hhplus.be.server.concert.presentation.dto.response.ConcertSeatAvailableResponse;
@@ -21,26 +21,25 @@ public class ConcertService {
     private final ConcertScheduleRepository concertScheduleRepository;
     private final SeatRepository seatRepository;
 
-    public List<ConcertScheduleResponse> getConcertSchedules(long concertId) {
-        ConcertSchedule schedule = concertScheduleRepository.findById(concertId)
+    public List<ConcertScheduleResponse> getConcertSchedules(Long concertId) {
+        List<ConcertScheduleResponse> schedules = concertScheduleRepository.findByConcertId(concertId)
+                .stream()
                 .filter(concertSchedule -> concertSchedule.getStatus() == ConcertScheduleStatus.AVAILABLE)
-                .filter(concertSchedule -> {
-                    concertSchedule.isAvailable();  // 날짜 검증
-                    return true;
-                })
-                .orElseThrow(() -> new ConcertError(ConcertErrorCode.CONCERT_NOT_FOUND));
+                .filter(ConcertSchedule::isDateAvailable)
+                .map(ConcertScheduleResponse::from)
+                .toList();
 
-        return List.of(ConcertScheduleResponse.builder()
-                .concertScheduleId(schedule.getId())
-                .concertDate(schedule.getConcertDate())
-                .build());
+        if (schedules.isEmpty()) {
+            throw new ConcertException(ConcertErrorCode.CONCERT_NOT_FOUND);
+        }
+
+        return schedules;
     }
 
-    @Transactional(readOnly = true)
     public ConcertSeatAvailableResponse getAvailableSeats(Long concertScheduleId) {
         // 공연 일정 조회
         ConcertSchedule schedule = concertScheduleRepository.findById(concertScheduleId)
-                .orElseThrow(() -> new ConcertError(ConcertErrorCode.CONCERT_NOT_FOUND));
+                .orElseThrow(() -> new ConcertException(ConcertErrorCode.CONCERT_NOT_FOUND));
 
         // 예약 가능한 좌석 조회
         List<Integer> availableSeats = seatRepository.findByConcertScheduleIdAndStatus(
@@ -57,26 +56,9 @@ public class ConcertService {
                 .build();
     }
 
-//    public ConcertSchedule getSchedule(Long concertScheduleId) {
-//        return concertRepository.findById(concertScheduleId)
-//                .orElseThrow(() -> new ConcertError(ConcertErrorCode.CONCERT_NOT_FOUND));
-//    }
-
-//    public Seat getSeat(Long seatId) {
-//        return seatRepository.findById(seatId)
-//                .orElseThrow(() -> new ConcertError(ConcertErrorCode.SEAT_NOT_FOUND));
-//    }
-
     public SeatResult reserveSeat(Long seatId) {
         Seat seat = seatRepository.findById(seatId)
-                .orElseThrow(() -> new ConcertError(ConcertErrorCode.SEAT_NOT_FOUND));
-
-//        Seat seat = seatRepository.findByIdWithPessimisticLock(seatId)
-//                .orElseThrow(() -> new ConcertError(ConcertErrorCode.SEAT_NOT_FOUND));
-
-//        if (!seat.isReserved()) {
-//            throw new ConcertError(ConcertErrorCode.SEAT_ALREADY_OCCUPIED);
-//        }
+                .orElseThrow(() -> new ConcertException(ConcertErrorCode.SEAT_NOT_FOUND));
 
         seat.reserved();
 

@@ -33,10 +33,14 @@ public class QueueToken {
     @Column
     private LocalDateTime expiredAt;
 
+    private Long position;
+
     public static QueueToken issueToken(Long userId, Long activeCount, Long waitingCount) {
-        String token = UUID.randomUUID().toString();
         QueueTokenStatus status = (activeCount < QueueConstants.MAX_ACTIVE_USERS && waitingCount == 0) ?
                 QueueTokenStatus.ACTIVE : QueueTokenStatus.WAITING;
+
+        String userData = userId + LocalDateTime.now().toString();
+        String token = UUID.nameUUIDFromBytes(userData.getBytes()).toString();
 
         return QueueToken.builder()
                 .token(token)

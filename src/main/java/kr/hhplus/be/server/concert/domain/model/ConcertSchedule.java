@@ -1,7 +1,7 @@
 package kr.hhplus.be.server.concert.domain.model;
 
 import jakarta.persistence.*;
-import kr.hhplus.be.server.concert.domain.exception.ConcertError;
+import kr.hhplus.be.server.concert.domain.exception.ConcertException;
 import kr.hhplus.be.server.concert.domain.exception.ConcertErrorCode;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -30,9 +30,7 @@ public class ConcertSchedule {
     @Enumerated(EnumType.STRING)
     private ConcertScheduleStatus status;
 
-    public void isAvailable() {
-        if (concertDate.isBefore(LocalDateTime.now())) {
-            throw new ConcertError(ConcertErrorCode.SEAT_ALREADY_OCCUPIED);
-        }
+    public boolean isDateAvailable() {
+        return !concertDate.isBefore(LocalDateTime.now());
     }
 }

@@ -18,4 +18,8 @@ public class UserService {
                 .orElseThrow(() -> new CustomException(400, "USER_NOT_FOUND", "해당 유저가 존재하지 않습니다.", LogLevel.WARN));
     }
 
+    public User createUser() {
+        User user = User.createUser();
+        return userRepository.save(user);
+    }
 }

@@ -17,6 +17,8 @@ public class User {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column
-    private String name;
+    // 생성 메서드
+    public static User createUser() {
+        return new User();
+    }
 }
