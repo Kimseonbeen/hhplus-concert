@@ -16,7 +16,9 @@ public class QueueTokenScheduler {
 
     private final QueueTokenService queueTokenService;
 
-    @Scheduled(fixedDelay = 60000)
+    private static final int ACTIVATION_INTERVAL = 30;
+
+    @Scheduled(fixedDelay = ACTIVATION_INTERVAL * 1000)
     public void QueueTokenStatusChange() {
         log.info("start schedule");
 

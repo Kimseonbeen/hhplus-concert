@@ -20,7 +20,7 @@ import java.util.List;
 public class QueueTokenService {
 
     private final QueueTokenRepository queueTokenRepository;
-    private static final long MAX_ACTIVE_TOKEN_COUNT = 100;
+    private static final long MAX_ACTIVE_TOKEN_COUNT = 150;
 
     @Transactional
     public QueueToken issueQueueToken(long userId) {
@@ -62,6 +62,8 @@ public class QueueTokenService {
     public void expireToken(String token) {
         queueTokenRepository.removeToken(token);
     }
+
+
 
     // 대기 토큰 활성화
     public void activateNextWaitingToken() {
