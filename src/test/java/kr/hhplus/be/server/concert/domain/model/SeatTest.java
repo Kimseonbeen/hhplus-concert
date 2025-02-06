@@ -1,6 +1,6 @@
 package kr.hhplus.be.server.concert.domain.model;
 
-import kr.hhplus.be.server.concert.domain.exception.ConcertError;
+import kr.hhplus.be.server.concert.domain.exception.ConcertException;
 import kr.hhplus.be.server.concert.domain.exception.ConcertErrorCode;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -18,10 +18,10 @@ class SeatTest {
                 .build();
 
         // when
-        ConcertError concertError = assertThrows(ConcertError.class, seat::reserved);
+        ConcertException concertException = assertThrows(ConcertException.class, seat::reserved);
 
         // then
-        assertEquals(concertError.getMessage(), ConcertErrorCode.SEAT_ALREADY_OCCUPIED.getMsg());
+        assertEquals(concertException.getMessage(), ConcertErrorCode.SEAT_ALREADY_OCCUPIED.getMsg());
 
     }
 

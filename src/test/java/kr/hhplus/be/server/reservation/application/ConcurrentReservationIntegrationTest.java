@@ -1,6 +1,6 @@
 package kr.hhplus.be.server.reservation.application;
 
-import kr.hhplus.be.server.concert.domain.exception.ConcertError;
+import kr.hhplus.be.server.concert.domain.exception.ConcertException;
 import kr.hhplus.be.server.concert.domain.exception.ConcertErrorCode;
 import kr.hhplus.be.server.concert.domain.model.Concert;
 import kr.hhplus.be.server.concert.domain.model.Seat;
@@ -145,7 +145,7 @@ public class ConcurrentReservationIntegrationTest {
                     ReservationCommand command = new ReservationCommand(userId, scheduleId, seatId);
                     reservationFacade.reserve(command);
                     successCount.incrementAndGet();
-                } catch (ConcertError e) {
+                } catch (ConcertException e) {
                     if (Objects.equals(e.getMessage(), ConcertErrorCode.SEAT_ALREADY_OCCUPIED.getMsg())) {
                         failCount.incrementAndGet();
                     }

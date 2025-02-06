@@ -36,7 +36,6 @@ public class ConcurrentBalanceIntegrationTest {
     @BeforeEach
     void init() {
         User user = User.builder()
-                .name("TEST")
                 .build();
         userRepository.save(user);
 
