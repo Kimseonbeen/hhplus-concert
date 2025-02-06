@@ -8,12 +8,16 @@ import java.util.List;
 import java.util.Optional;
 
 public interface QueueTokenRepository {
-    long countByStatus(QueueTokenStatus status);
+    Long getWaitingTokenCount();
+    Long getActiveTokenCount();
     Optional<QueueToken> findByToken(String token);
-    QueueToken save(QueueToken queueToken);
-    long countByStatusAndIdLessThan(QueueTokenStatus status, long userId);
-    List<QueueToken> findByStatusAndExpiredAtBefore(QueueTokenStatus status, LocalDateTime dateTime);
-    Optional<QueueToken> findFirstByStatusOrderByIdAsc(QueueTokenStatus status);
-
+    void save(QueueToken queueToken);
+    Long countWaitingAhead(QueueTokenStatus status, long userId);
+    List<QueueToken> findExpiredTokens(QueueTokenStatus status, LocalDateTime dateTime);
+    Optional<QueueToken> getNextToken(QueueTokenStatus status);
     Optional<QueueToken> findByUserId(Long userId);
+    List<String> getWaitingTokens(Long needs);
+    void saveAcviveTokens(String s);
+    void removeWaitingTokens(List<String> waitingTokens);
+    void removeToken(String token);
 }

@@ -1,6 +1,6 @@
 package kr.hhplus.be.server.queueToken.domain.service;
 
-import kr.hhplus.be.server.queueToken.domain.exception.QueueTokenError;
+import kr.hhplus.be.server.queueToken.domain.exception.QueueTokenException;
 import kr.hhplus.be.server.queueToken.domain.exception.QueueTokenErrorCode;
 import kr.hhplus.be.server.queueToken.domain.model.QueueToken;
 import kr.hhplus.be.server.queueToken.domain.model.QueueTokenStatus;
@@ -20,14 +20,15 @@ import java.util.List;
 public class QueueTokenService {
 
     private final QueueTokenRepository queueTokenRepository;
+    private static final long MAX_ACTIVE_TOKEN_COUNT = 100;
 
     @Transactional
     public QueueToken issueQueueToken(long userId) {
 
         // ACTIVE 토큰 확인
-        long activeCount = queueTokenRepository.countByStatus(QueueTokenStatus.ACTIVE);
+        long activeCount = queueTokenRepository.getActiveTokenCount();
         // WAITING 토큰 확인 == 대기순서 확인
-        long waitingCount = queueTokenRepository.countByStatus(QueueTokenStatus.WAITING);
+        long waitingCount = queueTokenRepository.getWaitingTokenCount();
 
         QueueToken queueToken = QueueToken.issueToken(userId, activeCount, waitingCount);
 
@@ -39,64 +40,48 @@ public class QueueTokenService {
     public QueueTokenResponse getQueueToken(String token) {
 
         QueueToken queueToken = queueTokenRepository.findByToken(token)
-                .orElseThrow(() -> new QueueTokenError(QueueTokenErrorCode.QUEUE_TOKEN_NOT_FOUND));
+                .orElseThrow(() -> new QueueTokenException(QueueTokenErrorCode.QUEUE_TOKEN_NOT_FOUND));
 
-        // 토큰 상태가 waiting
-        if (queueToken.isWaiting()) {
-            long waitingNum = queueTokenRepository.countByStatusAndIdLessThan(
-                    QueueTokenStatus.WAITING,
-                    queueToken.getId()
-            );
-            return QueueTokenResponse.of(queueToken, waitingNum+1);
-        }
-
-        return QueueTokenResponse.of(queueToken, 0L);
+        return QueueTokenResponse.of(queueToken);
     }
 
     public void validateToken(String token) {
         QueueToken queueToken = queueTokenRepository.findByToken(token)
-                .orElseThrow(() -> new QueueTokenError(QueueTokenErrorCode.QUEUE_TOKEN_NOT_FOUND));
+                .orElseThrow(() -> new QueueTokenException(QueueTokenErrorCode.QUEUE_TOKEN_NOT_FOUND));
 
         if (queueToken.isExpired()) {
-            throw new QueueTokenError(QueueTokenErrorCode.QUEUE_TOKEN_NOT_FOUND);
+            throw new QueueTokenException(QueueTokenErrorCode.QUEUE_TOKEN_NOT_FOUND);
         }
 
         if (!queueToken.isActive()) {
-            throw new QueueTokenError(QueueTokenErrorCode.QUEUE_TOKEN_NOT_ACTIVE);
+            throw new QueueTokenException(QueueTokenErrorCode.QUEUE_TOKEN_NOT_ACTIVE);
         }
     }
 
-    // 만료된 ACTIVE 토큰 조회
-    public List<QueueToken> findExpiredActiveTokens() {
-        return queueTokenRepository.findByStatusAndExpiredAtBefore(
-                QueueTokenStatus.ACTIVE,
-                LocalDateTime.now()
-        );
-    }
-
-    // 토큰 만료 처리
-    public void expireToken(Long userId) {
-        QueueToken token = queueTokenRepository.findByUserId(userId)
-                .orElseThrow(() -> new QueueTokenError(QueueTokenErrorCode.QUEUE_TOKEN_NOT_FOUND));
-
-        token.expire();
-        queueTokenRepository.save(token);
+    // 토큰 만료 처리 (결제 완료 이후)
+    public void expireToken(String token) {
+        queueTokenRepository.removeToken(token);
     }
 
     // 대기 토큰 활성화
-
-    /**
-     * findFirstByStatusOrderByIdAsc Query
-     * SELECT * FROM queue_token
-     * WHERE status = ?
-     * ORDER BY id ASC
-     * LIMIT 1
-     */
     public void activateNextWaitingToken() {
-        queueTokenRepository.findFirstByStatusOrderByIdAsc(QueueTokenStatus.WAITING)
-                .ifPresent(token -> {
-                    token.activate();  // 상태만 ACTIVE로 변경
-                    queueTokenRepository.save(token);
-                });
+
+        Long activeTokenCount = queueTokenRepository.getActiveTokenCount();
+
+        if (activeTokenCount < MAX_ACTIVE_TOKEN_COUNT) {
+            long needs = MAX_ACTIVE_TOKEN_COUNT - activeTokenCount;
+
+            // needs 만큼 waitingToken 조회
+            List<String> waitingTokens = queueTokenRepository.getWaitingTokens(needs);
+
+            if (!waitingTokens.isEmpty()) {
+
+                // 조회한 waitingToken 삭제
+                queueTokenRepository.removeWaitingTokens(waitingTokens);
+
+                // activeToken 생성
+                waitingTokens.forEach(queueTokenRepository::saveAcviveTokens);
+            }
+        }
     }
 }
