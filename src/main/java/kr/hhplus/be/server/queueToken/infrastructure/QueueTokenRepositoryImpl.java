@@ -17,8 +17,13 @@ public class QueueTokenRepositoryImpl implements QueueTokenRepository {
     private final QueueTokenJpaRepository queueTokenJpaRepository;
 
     @Override
-    public long countByStatus(QueueTokenStatus status) {
-        return queueTokenJpaRepository.countByStatus(status);
+    public Long getWaitingTokenCount() {
+        return queueTokenJpaRepository.countByStatus(QueueTokenStatus.WAITING);
+    }
+
+    @Override
+    public Long getActiveTokenCount() {
+        return queueTokenJpaRepository.countByStatus(QueueTokenStatus.ACTIVE);
     }
 
     @Override
@@ -27,27 +32,47 @@ public class QueueTokenRepositoryImpl implements QueueTokenRepository {
     }
 
     @Override
-    public QueueToken save(QueueToken queueToken) {
-        return queueTokenJpaRepository.save(queueToken);
+    public void save(QueueToken queueToken) {
+        queueTokenJpaRepository.save(queueToken);
     }
 
     @Override
-    public long countByStatusAndIdLessThan(QueueTokenStatus status, long userId) {
+    public Long countWaitingAhead(QueueTokenStatus status, long userId) {
         return queueTokenJpaRepository.countByStatusAndIdLessThan(status, userId);
     }
 
     @Override
-    public List<QueueToken> findByStatusAndExpiredAtBefore(QueueTokenStatus status, LocalDateTime dateTime) {
+    public List<QueueToken> findExpiredTokens(QueueTokenStatus status, LocalDateTime dateTime) {
         return queueTokenJpaRepository.findByStatusAndExpiredAtBefore(status, dateTime);
     }
 
     @Override
-    public Optional<QueueToken> findFirstByStatusOrderByIdAsc(QueueTokenStatus status) {
+    public Optional<QueueToken> getNextToken(QueueTokenStatus status) {
         return queueTokenJpaRepository.findFirstByStatusOrderByIdAsc(status);
     }
 
     @Override
     public Optional<QueueToken> findByUserId(Long userId) {
         return queueTokenJpaRepository.findByUserId(userId);
+    }
+
+    @Override
+    public List<String> getWaitingTokens(Long needs) {
+        return List.of();
+    }
+
+    @Override
+    public void saveAcviveTokens(String s) {
+
+    }
+
+    @Override
+    public void removeWaitingTokens(List<String> waitingTokens) {
+
+    }
+
+    @Override
+    public void removeToken(String token) {
+
     }
 }
