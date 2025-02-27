@@ -3,6 +3,7 @@ package kr.hhplus.be.server.reservation.application;
 import kr.hhplus.be.server.balance.domain.service.BalanceService;
 import kr.hhplus.be.server.concert.domain.model.SeatResult;
 import kr.hhplus.be.server.concert.domain.service.ConcertService;
+import kr.hhplus.be.server.reservation.domain.event.PaymentCompletedEvent;
 import kr.hhplus.be.server.payment.domain.model.Payment;
 import kr.hhplus.be.server.payment.domain.service.PaymentService;
 import kr.hhplus.be.server.queueToken.domain.service.QueueTokenService;
@@ -12,13 +13,15 @@ import kr.hhplus.be.server.reservation.application.dto.ReservationCommand;
 import kr.hhplus.be.server.reservation.application.dto.ReservationResult;
 import kr.hhplus.be.server.reservation.domain.service.ReservationService;
 import lombok.RequiredArgsConstructor;
-import org.redisson.api.RedissonClient;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
 public class ReservationFacade {
+
+    private final ApplicationEventPublisher eventPublisher;
 
     private final ConcertService concertService;
     private final ReservationService reservationService;
@@ -58,7 +61,8 @@ public class ReservationFacade {
         // 토큰 만료 처리
         queueTokenService.expireToken(command.token());
 
-        // 결재 완료 후, 해당 콘서트 스케쥴이 매진이라면, 상태 값을 변경
+        // 예약 결제 완료 이벤트 발송
+        eventPublisher.publishEvent(new PaymentCompletedEvent(payment.getId()));
 
         return PaymentResult.from(payment);
     }
