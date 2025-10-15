@@ -10,6 +10,7 @@ import kr.hhplus.be.server.balance.domain.repository.BalanceRepository;
 import kr.hhplus.be.server.common.annotation.DistributedLock;
 import lombok.RequiredArgsConstructor;
 import org.redisson.api.RedissonClient;
+import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Service;
 
 
@@ -19,7 +20,7 @@ public class BalanceService {
 
     private final BalanceRepository balanceRepository;
     private final BalanceHistoryRepository balanceHistoryRepository;
-    private final RedissonClient redissonClient;
+    private final KafkaTemplate<String, String> kafkaTemplate;
 
     @DistributedLock(key = "'point :' + #userId")
     public void decrease(Long userId, Long amount) {

@@ -1,6 +1,7 @@
 package kr.hhplus.be.server.payment.domain.model;
 
 import jakarta.persistence.*;
+import kr.hhplus.be.server.balance.domain.model.BalanceHistoryType;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;

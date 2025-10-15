@@ -43,7 +43,7 @@ public class ReservationFacade {
     }
 
     @Transactional
-    public PaymentResult completePayment(PaymentCommand command) {
+    public PaymentResult completePayment(PaymentCommand command, String token) {
 
         // 잔액 감소
         balanceService.decrease(command.userId(), command.amount());
@@ -59,6 +59,7 @@ public class ReservationFacade {
         );
 
         // 토큰 만료 처리
+        queueTokenService.expireToken(token);
         queueTokenService.expireToken(command.token());
 
         // 예약 결제 완료 이벤트 발송
