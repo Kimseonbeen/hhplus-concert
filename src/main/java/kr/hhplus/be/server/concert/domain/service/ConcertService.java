@@ -33,6 +33,10 @@ public class ConcertService {
 
         List<ConcertScheduleResponse> schedules = concertScheduleRepository.findAvailableSchedule(concertId)
                 .stream()
+        List<ConcertScheduleResponse> schedules = concertScheduleRepository.findByConcertId(concertId)
+                .stream()
+                .filter(concertSchedule -> concertSchedule.getStatus() == ConcertScheduleStatus.AVAILABLE)
+                .filter(ConcertSchedule::isDateAvailable)
                 .map(ConcertScheduleResponse::from)
                 .toList();
 

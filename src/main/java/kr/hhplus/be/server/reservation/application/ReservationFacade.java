@@ -60,6 +60,7 @@ public class ReservationFacade {
 
         // 토큰 만료 처리
         queueTokenService.expireToken(token);
+        queueTokenService.expireToken(command.token());
 
         // 예약 결제 완료 이벤트 발송
         eventPublisher.publishEvent(new PaymentCompletedEvent(payment.getId()));
