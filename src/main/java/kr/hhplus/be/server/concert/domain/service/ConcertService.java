@@ -9,10 +9,10 @@ import kr.hhplus.be.server.concert.presentation.dto.response.ConcertScheduleResp
 import kr.hhplus.be.server.concert.presentation.dto.response.ConcertSeatAvailableResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
-import java.util.stream.Collectors;
+
+import static java.util.stream.Collectors.*;
 
 @Service
 @RequiredArgsConstructor
@@ -22,10 +22,17 @@ public class ConcertService {
     private final SeatRepository seatRepository;
 
     public List<ConcertScheduleResponse> getConcertSchedules(Long concertId) {
-        List<ConcertScheduleResponse> schedules = concertScheduleRepository.findByConcertId(concertId)
+
+        // 리펙토링 필요 -> 쿼리로 개선하기
+//        List<ConcertScheduleResponse> schedules = concertScheduleRepository.findByConcertId(concertId)
+//                .stream()
+//                .filter(concertSchedule -> concertSchedule.getStatus() == ConcertScheduleStatus.AVAILABLE)
+//                .filter(ConcertSchedule::isDateAvailable)
+//                .map(ConcertScheduleResponse::from)
+//                .toList();
+
+        List<ConcertScheduleResponse> schedules = concertScheduleRepository.findAvailableSchedule(concertId)
                 .stream()
-                .filter(concertSchedule -> concertSchedule.getStatus() == ConcertScheduleStatus.AVAILABLE)
-                .filter(ConcertSchedule::isDateAvailable)
                 .map(ConcertScheduleResponse::from)
                 .toList();
 
@@ -38,6 +45,7 @@ public class ConcertService {
 
     public ConcertSeatAvailableResponse getAvailableSeats(Long concertScheduleId) {
         // 공연 일정 조회
+        // 공연이 아직 종료가 안 되어있어야함
         ConcertSchedule schedule = concertScheduleRepository.findById(concertScheduleId)
                 .orElseThrow(() -> new ConcertException(ConcertErrorCode.CONCERT_NOT_FOUND));
 
@@ -48,7 +56,7 @@ public class ConcertService {
                 )
                 .stream()
                 .map(Seat::getSeatNum)
-                .collect(Collectors.toList());
+                .collect(toList());
 
         return ConcertSeatAvailableResponse.builder()
                 .date(schedule.getConcertDate())

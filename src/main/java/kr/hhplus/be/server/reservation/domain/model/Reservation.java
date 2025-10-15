@@ -48,4 +48,8 @@ public class Reservation {
     public void complete() {
         this.status = ReservationStatus.CONFIRMED;
     }
+
+    public void fail() {
+        this.status = ReservationStatus.PENDING_PAYMENT;
+    }
 }
