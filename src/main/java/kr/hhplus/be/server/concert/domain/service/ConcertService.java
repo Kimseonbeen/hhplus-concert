@@ -23,14 +23,6 @@ public class ConcertService {
 
     public List<ConcertScheduleResponse> getConcertSchedules(Long concertId) {
 
-        // 리펙토링 필요 -> 쿼리로 개선하기
-//        List<ConcertScheduleResponse> schedules = concertScheduleRepository.findByConcertId(concertId)
-//                .stream()
-//                .filter(concertSchedule -> concertSchedule.getStatus() == ConcertScheduleStatus.AVAILABLE)
-//                .filter(ConcertSchedule::isDateAvailable)
-//                .map(ConcertScheduleResponse::from)
-//                .toList();
-
         List<ConcertScheduleResponse> schedules = concertScheduleRepository.findAvailableSchedule(concertId)
                 .stream()
                 .map(ConcertScheduleResponse::from)
@@ -49,14 +41,25 @@ public class ConcertService {
         ConcertSchedule schedule = concertScheduleRepository.findById(concertScheduleId)
                 .orElseThrow(() -> new ConcertException(ConcertErrorCode.CONCERT_NOT_FOUND));
 
-        // 예약 가능한 좌석 조회
+        // 방어로직
+        schedule.checkIsAvailable();
+
+        /**
+         * 기존 소스
+         * List<Integer> availableSeats = seatRepository.findByConcertScheduleIdAndStatus(
+         *                         concertScheduleId,
+         *                         SeatStatus.AVAILABLE
+         *                 )
+         *                 .stream()
+         *                 .map(Seat::getSeatNum) <-- 메모리에서 추출
+         *                 .collect(toList());
+         * 변경이유 : 애플리케이션 서버에서 데이터를 받은 후, JPA(Hibernate 등)는 전송된 모든 컬럼 데이터를 사용하여 불필요한 Seat 엔티티 객체 인스턴스를 메모리에 생성하고 있는데,
+         * 필요 없는 엔티티 객체를 임시로 생성하므로 메모리가 불필요하게 사용됨
+         */
         List<Integer> availableSeats = seatRepository.findByConcertScheduleIdAndStatus(
-                        concertScheduleId,
-                        SeatStatus.AVAILABLE
-                )
-                .stream()
-                .map(Seat::getSeatNum)
-                .collect(toList());
+                concertScheduleId,
+                SeatStatus.AVAILABLE
+        );
 
         return ConcertSeatAvailableResponse.builder()
                 .date(schedule.getConcertDate())

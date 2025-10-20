@@ -30,7 +30,9 @@ public class ConcertSchedule {
     @Enumerated(EnumType.STRING)
     private ConcertScheduleStatus status;
 
-    public boolean isDateAvailable() {
-        return !concertDate.isBefore(LocalDateTime.now());
+    public void checkIsAvailable() {
+        if (this.concertDate.isBefore(LocalDateTime.now())) {
+            throw new ConcertException(ConcertErrorCode.CONCERT_DATE_EXPIRED);
+        }
     }
 }

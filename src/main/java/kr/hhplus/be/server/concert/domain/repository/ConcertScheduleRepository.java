@@ -3,6 +3,7 @@ package kr.hhplus.be.server.concert.domain.repository;
 import kr.hhplus.be.server.concert.domain.model.ConcertSchedule;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
@@ -21,5 +22,5 @@ public interface ConcertScheduleRepository extends JpaRepository<ConcertSchedule
                     "and concert_date >= SYSDATE();",
             nativeQuery = true
     )
-    List<ConcertSchedule> findAvailableSchedule(Long concertId);
+    List<ConcertSchedule> findAvailableSchedule(@Param("concertId") Long concertId);
 }

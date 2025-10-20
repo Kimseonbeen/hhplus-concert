@@ -120,9 +120,10 @@ class ConcertServiceTest {
         );
 
         // AVAILABLE 상태의 좌석만 필터링된 목록
-        List<Seat> availableSeats = allSeats.stream()
-                .filter(seat -> seat.getStatus() == SeatStatus.AVAILABLE)
-                .collect(Collectors.toList());
+        List<Integer> availableSeats = allSeats.stream()
+                        .filter(seat -> seat.getStatus() == SeatStatus.AVAILABLE)
+                        .map(Seat::getSeatNum)
+                        .toList();
 
         given(concertScheduleRepository.findById(scheduleId)).willReturn(Optional.of(schedule));
         given(seatRepository.findByConcertScheduleIdAndStatus(scheduleId, SeatStatus.AVAILABLE))
