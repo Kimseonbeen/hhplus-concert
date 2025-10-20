@@ -22,17 +22,10 @@ public class ConcertService {
     private final SeatRepository seatRepository;
 
     public List<ConcertScheduleResponse> getConcertSchedules(Long concertId) {
-
-        List<ConcertScheduleResponse> schedules = concertScheduleRepository.findAvailableSchedule(concertId)
+        return findScheduleOrThrow(concertId)
                 .stream()
                 .map(ConcertScheduleResponse::from)
                 .toList();
-
-        if (schedules.isEmpty()) {
-            throw new ConcertException(ConcertErrorCode.CONCERT_NOT_FOUND);
-        }
-
-        return schedules;
     }
 
     public ConcertSeatAvailableResponse getAvailableSeats(Long concertScheduleId) {
@@ -61,10 +54,7 @@ public class ConcertService {
                 SeatStatus.AVAILABLE
         );
 
-        return ConcertSeatAvailableResponse.builder()
-                .date(schedule.getConcertDate())
-                .availableSeats(availableSeats)
-                .build();
+         return ConcertSeatAvailableResponse.from(schedule, availableSeats);
     }
 
     public SeatResult reserveSeat(Long seatId) {
@@ -74,5 +64,14 @@ public class ConcertService {
         seat.reserved();
 
         return SeatResult.from(seatRepository.save(seat));
+    }
+
+    private List<ConcertSchedule> findScheduleOrThrow(Long concertId) {
+        List<ConcertSchedule> availableSchedule = concertScheduleRepository.findAvailableSchedule(concertId);
+        if (availableSchedule.isEmpty()) {
+            throw new ConcertException(ConcertErrorCode.CONCERT_NOT_FOUND);
+        }
+
+        return availableSchedule;
     }
 }
