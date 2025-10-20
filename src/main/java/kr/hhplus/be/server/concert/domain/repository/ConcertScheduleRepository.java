@@ -16,7 +16,7 @@ public interface ConcertScheduleRepository extends JpaRepository<ConcertSchedule
     @Query(
             value = "select id, concert_id, concert_date, status " +
                     "from concert_schedule " +
-                    "where concert_id = :concertId" +
+                    "where concert_id = :concertId " +
                     "and status = 'AVAILABLE' " +
                     "and concert_date >= SYSDATE();",
             nativeQuery = true
