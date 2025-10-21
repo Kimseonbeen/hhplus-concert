@@ -5,13 +5,14 @@ import kr.hhplus.be.server.concert.domain.exception.ConcertErrorCode;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.*;
 
 class SeatTest {
 
     @Test
     @DisplayName("이미 예약된 좌석을 예약 시도하면 SEAT_ALREADY_OCCUPIED 에러가 발생한다")
-    void isAvailable_WhenSeatOccupied_ThrowsException() {
+    void isAvailable_ThrowsSeatAlreadyOccupiedException_WhenSeatOccupied() {
         // given
         Seat seat = Seat.builder()
                 .status(SeatStatus.RESERVED)
@@ -21,8 +22,7 @@ class SeatTest {
         ConcertException concertException = assertThrows(ConcertException.class, seat::reserved);
 
         // then
-        assertEquals(concertException.getMessage(), ConcertErrorCode.SEAT_ALREADY_OCCUPIED.getMsg());
-
+        assertThat(concertException.getMessage()).isEqualTo(ConcertErrorCode.SEAT_ALREADY_OCCUPIED.getMsg());
     }
 
     @Test
@@ -37,7 +37,6 @@ class SeatTest {
         seat.reserved();
 
         // then
-        assertEquals(seat.getStatus(), SeatStatus.RESERVED);
+        assertThat(seat.getStatus()).isEqualTo(SeatStatus.RESERVED);
     }
-
 }
