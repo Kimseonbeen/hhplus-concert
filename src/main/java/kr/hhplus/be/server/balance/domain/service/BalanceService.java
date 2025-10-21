@@ -9,7 +9,6 @@ import kr.hhplus.be.server.balance.domain.repository.BalanceHistoryRepository;
 import kr.hhplus.be.server.balance.domain.repository.BalanceRepository;
 import kr.hhplus.be.server.common.annotation.DistributedLock;
 import lombok.RequiredArgsConstructor;
-import org.redisson.api.RedissonClient;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Service;
 
@@ -32,11 +31,8 @@ public class BalanceService {
         balance.decrease(amount);  // 잔액이 부족하면 여기서 예외 발생
 
         // 3. 잔액 변경 이력 저장
-        BalanceHistory history = BalanceHistory.builder()
-                .balanceId(balance.getId())
-                .amount(amount)          // 양수 그대로 저장
-                .type(BalanceHistoryType.DECREASE)  // 감소로 명시
-                .build();
+        BalanceHistory history = BalanceHistory.createHistory(amount, balance, BalanceHistoryType.DECREASE);
+
         balanceHistoryRepository.save(history);
     }
 
@@ -47,11 +43,7 @@ public class BalanceService {
 
         balance.increase(amount);
 
-        BalanceHistory history = BalanceHistory.builder()
-                .balanceId(balance.getId())
-                .amount(amount)
-                .type(BalanceHistoryType.INCREASE)
-                .build();
+        BalanceHistory history = BalanceHistory.createHistory(amount, balance, BalanceHistoryType.INCREASE);
 
         balanceHistoryRepository.save(history);
     }
@@ -60,5 +52,4 @@ public class BalanceService {
         return balanceRepository.findByUserId(userId)
                 .orElseThrow(() -> new BalanceError(BalanceErrorCode.BALANCE_NOT_FOUND));
     }
-
 }

@@ -22,4 +22,12 @@ public class BalanceHistory {
 
     @Column(name = "created_at")
     private LocalDateTime createdAt;
+
+    public static BalanceHistory createHistory(Long amount, Balance balance, BalanceHistoryType balanceHistoryType) {
+        return BalanceHistory.builder()
+                .balanceId(balance.getId())
+                .amount(amount)          // 양수 그대로 저장
+                .type(balanceHistoryType)
+                .build();
+    }
 }
