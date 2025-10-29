@@ -15,7 +15,6 @@ import java.util.UUID;
 @NoArgsConstructor
 @AllArgsConstructor
 public class QueueToken {
-
     @Id @Column
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -35,12 +34,12 @@ public class QueueToken {
 
     private Long position;
 
-    public static QueueToken issueToken(Long userId, Long activeCount, Long waitingCount) {
-        QueueTokenStatus status = (activeCount < QueueConstants.MAX_ACTIVE_USERS && waitingCount == 0) ?
+    public static QueueToken createToken(Long userId, Long activeCount) {
+        QueueTokenStatus status = (activeCount < QueueConstants.MAX_ACTIVE_USERS) ?
                 QueueTokenStatus.ACTIVE : QueueTokenStatus.WAITING;
 
-        String userData = userId + LocalDateTime.now().toString();
-        String token = UUID.nameUUIDFromBytes(userData.getBytes()).toString();
+        String userDate = userId + LocalDateTime.now().toString();
+        String token = UUID.nameUUIDFromBytes(userDate.getBytes()).toString();
 
         return QueueToken.builder()
                 .token(token)
@@ -70,6 +69,4 @@ public class QueueToken {
         this.status = QueueTokenStatus.ACTIVE;
         this.expiredAt = LocalDateTime.now().plusMinutes(10);
     }
-
-
 }
