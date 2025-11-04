@@ -12,12 +12,8 @@ public interface QueueTokenRepository {
     Long getActiveTokenCount();
     Optional<QueueToken> findByToken(String token);
     void save(QueueToken queueToken);
-    Long countWaitingAhead(QueueTokenStatus status, long userId);
-    List<QueueToken> findExpiredTokens(QueueTokenStatus status, LocalDateTime dateTime);
     Optional<QueueToken> getNextToken(QueueTokenStatus status);
     Optional<QueueToken> findByUserId(Long userId);
-    List<String> getWaitingTokens(Long needs);
-    void saveAcviveTokens(String s);
-    void removeWaitingTokens(List<String> waitingTokens);
     void removeToken(String token);
+    Long atomicallyActivateWaitingTokens(long needs);
 }

@@ -11,8 +11,6 @@ import java.util.Optional;
 public interface QueueTokenJpaRepository extends JpaRepository<QueueToken, Long> {
     Long countByStatus(QueueTokenStatus status);
     Optional<QueueToken> findByToken(String token);
-    Long countByStatusAndIdLessThan(QueueTokenStatus status, long userId);
-    List<QueueToken> findByStatusAndExpiredAtBefore(QueueTokenStatus status, LocalDateTime dateTime);
     Optional<QueueToken> findFirstByStatusOrderByIdAsc(QueueTokenStatus status);
     Optional<QueueToken> findByUserId(Long userId);
 }
