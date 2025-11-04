@@ -21,11 +21,9 @@ public class QueueTokenInterceptor implements HandlerInterceptor {
         if (token == null || token.isEmpty()) {
             throw new QueueTokenException(QueueTokenErrorCode.QUEUE_TOKEN_NOT_FOUND);
         }
-
         // 토큰 검증
         queueTokenService.validateToken(token);
 
         return true;
     }
-
 }

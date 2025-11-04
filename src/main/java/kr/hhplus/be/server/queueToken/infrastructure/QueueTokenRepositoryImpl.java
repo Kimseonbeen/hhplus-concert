@@ -37,16 +37,6 @@ public class QueueTokenRepositoryImpl implements QueueTokenRepository {
     }
 
     @Override
-    public Long countWaitingAhead(QueueTokenStatus status, long userId) {
-        return queueTokenJpaRepository.countByStatusAndIdLessThan(status, userId);
-    }
-
-    @Override
-    public List<QueueToken> findExpiredTokens(QueueTokenStatus status, LocalDateTime dateTime) {
-        return queueTokenJpaRepository.findByStatusAndExpiredAtBefore(status, dateTime);
-    }
-
-    @Override
     public Optional<QueueToken> getNextToken(QueueTokenStatus status) {
         return queueTokenJpaRepository.findFirstByStatusOrderByIdAsc(status);
     }
@@ -57,22 +47,12 @@ public class QueueTokenRepositoryImpl implements QueueTokenRepository {
     }
 
     @Override
-    public List<String> getWaitingTokens(Long needs) {
-        return List.of();
-    }
-
-    @Override
-    public void saveAcviveTokens(String s) {
-
-    }
-
-    @Override
-    public void removeWaitingTokens(List<String> waitingTokens) {
-
-    }
-
-    @Override
     public void removeToken(String token) {
 
+    }
+
+    @Override
+    public Long atomicallyActivateWaitingTokens(long needs) {
+        return 0L;
     }
 }

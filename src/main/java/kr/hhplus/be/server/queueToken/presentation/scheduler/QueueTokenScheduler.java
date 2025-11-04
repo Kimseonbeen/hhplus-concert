@@ -24,6 +24,7 @@ public class QueueTokenScheduler {
 
         try {
             queueTokenService.activateNextWaitingToken();
+            log.info("[QueueTokenScheduler.QueueTokenStatusChange]");
         } catch (Exception e) {
             log.error("대기열 토큰 상태 변경 중 오류 발생", e);
         }
