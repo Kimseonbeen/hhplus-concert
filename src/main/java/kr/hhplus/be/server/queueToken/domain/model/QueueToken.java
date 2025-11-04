@@ -34,10 +34,7 @@ public class QueueToken {
 
     private Long position;
 
-    public static QueueToken createToken(Long userId, Long activeCount) {
-        QueueTokenStatus status = (activeCount < QueueConstants.MAX_ACTIVE_USERS) ?
-                QueueTokenStatus.ACTIVE : QueueTokenStatus.WAITING;
-
+    public static QueueToken createToken(Long userId, QueueTokenStatus status) {
         String userDate = userId + LocalDateTime.now().toString();
         String token = UUID.nameUUIDFromBytes(userDate.getBytes()).toString();
 
