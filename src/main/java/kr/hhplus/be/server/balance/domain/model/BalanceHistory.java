@@ -1,12 +1,17 @@
 package kr.hhplus.be.server.balance.domain.model;
 
 import jakarta.persistence.*;
+import lombok.AccessLevel;
+import lombok.AllArgsConstructor;
 import lombok.Builder;
+import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
 
 @Entity
 @Builder
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
+@AllArgsConstructor
 public class BalanceHistory {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -28,6 +33,7 @@ public class BalanceHistory {
                 .balanceId(balance.getId())
                 .amount(amount)          // 양수 그대로 저장
                 .type(balanceHistoryType)
+                .createdAt(LocalDateTime.now())
                 .build();
     }
 }

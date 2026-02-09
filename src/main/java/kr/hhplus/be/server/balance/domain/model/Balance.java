@@ -22,6 +22,9 @@ public class Balance {
     private Long amount;
 
     public void decrease(Long amount) {
+        if (amount <= 0) {
+            throw new BalanceError(BalanceErrorCode.INVALID_AMOUNT);
+        }
         if (this.amount < amount) {
             throw new BalanceError(BalanceErrorCode.INSUFFICIENT_BALANCE);
         }

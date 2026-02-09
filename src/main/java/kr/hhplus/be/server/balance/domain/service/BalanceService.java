@@ -19,6 +19,7 @@ public class BalanceService {
 
     private final BalanceRepository balanceRepository;
     private final BalanceHistoryRepository balanceHistoryRepository;
+    // TODO: 이벤트 발행 용도로 사용 예정
     private final KafkaTemplate<String, String> kafkaTemplate;
 
     @DistributedLock(key = "'point :' + #userId")
