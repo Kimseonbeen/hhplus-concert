@@ -7,7 +7,6 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
-import java.util.Locale;
 
 @Repository
 public interface ConcertScheduleRepository extends JpaRepository<ConcertSchedule, Long> {
