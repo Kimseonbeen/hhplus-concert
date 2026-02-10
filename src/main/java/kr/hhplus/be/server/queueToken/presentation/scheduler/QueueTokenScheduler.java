@@ -1,13 +1,10 @@
 package kr.hhplus.be.server.queueToken.presentation.scheduler;
 
-import kr.hhplus.be.server.queueToken.domain.model.QueueToken;
 import kr.hhplus.be.server.queueToken.domain.service.QueueTokenService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
-
-import java.util.List;
 
 @Component
 @RequiredArgsConstructor
@@ -19,7 +16,7 @@ public class QueueTokenScheduler {
     private static final int ACTIVATION_INTERVAL = 30;
 
     @Scheduled(fixedDelay = ACTIVATION_INTERVAL * 1000)
-    public void QueueTokenStatusChange() {
+    public void queueTokenStatusChange() {
         log.info("start schedule");
 
         try {

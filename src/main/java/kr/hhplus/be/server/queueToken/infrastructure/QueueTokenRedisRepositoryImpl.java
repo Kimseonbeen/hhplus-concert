@@ -99,7 +99,7 @@ public class QueueTokenRedisRepositoryImpl implements QueueTokenRepository {
 
     @Override
     public void removeToken(String token) {
-        redisTemplate.delete(token);
+        redisTemplate.delete(ACTIVE_TOKEN_PREFIX + ":" + token);
     }
 
     @Override
