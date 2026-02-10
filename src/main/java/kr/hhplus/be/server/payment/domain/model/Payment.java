@@ -1,18 +1,14 @@
 package kr.hhplus.be.server.payment.domain.model;
 
 import jakarta.persistence.*;
-import kr.hhplus.be.server.balance.domain.model.BalanceHistoryType;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import java.time.LocalDateTime;
 
 @Entity
 @Builder
 @Getter
-@NoArgsConstructor
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor
 public class Payment {
 
