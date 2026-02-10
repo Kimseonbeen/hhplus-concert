@@ -1,10 +1,6 @@
 package kr.hhplus.be.server.reservation.domain.service;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import jakarta.transaction.Transactional;
 import kr.hhplus.be.server.reservation.application.dto.PaymentCommand;
-import kr.hhplus.be.server.reservation.application.event.producer.ReservationEventProducer;
 import kr.hhplus.be.server.reservation.domain.event.ReservationPendingEvent;
 import kr.hhplus.be.server.reservation.domain.exception.ReservationError;
 import kr.hhplus.be.server.reservation.domain.exception.ReservationErrorCode;
@@ -14,8 +10,8 @@ import kr.hhplus.be.server.reservation.domain.repository.ReservationRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.ApplicationEventPublisher;
-import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Slf4j
 @Service
