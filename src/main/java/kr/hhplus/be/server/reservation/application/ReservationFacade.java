@@ -11,6 +11,7 @@ import kr.hhplus.be.server.reservation.application.dto.PaymentCommand;
 import kr.hhplus.be.server.reservation.application.dto.PaymentResult;
 import kr.hhplus.be.server.reservation.application.dto.ReservationCommand;
 import kr.hhplus.be.server.reservation.application.dto.ReservationResult;
+import kr.hhplus.be.server.reservation.domain.model.Reservation;
 import kr.hhplus.be.server.reservation.domain.service.ReservationService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.ApplicationEventPublisher;
@@ -36,17 +37,21 @@ public class ReservationFacade {
         SeatResult seatResult = concertService.reserveSeat(command.seatId());
 
         // 예약 생성
-        reservationService.createReservation(command.userId(), seatResult.seatId(), seatResult.price());
+        Reservation reservation = reservationService.createReservation(command.userId(), seatResult.seatId(), seatResult.price());
 
         // 응답 생성
-        return ReservationResult.of(command.userId(), seatResult.seatId(), seatResult.price());
+        return ReservationResult.of(reservation, seatResult);
     }
 
     @Transactional
     public PaymentResult completePayment(PaymentCommand command, String token) {
 
+        // 예약 조회 및 금액 확인 (클라이언트 금액 미사용)
+        Reservation reservation = reservationService.getReservation(command.reservationId());
+        Long amount = reservation.getPrice();
+
         // 잔액 감소
-        balanceService.decrease(command.userId(), command.amount());
+        balanceService.decrease(command.userId(), amount);
 
         // 예약 완료
         reservationService.completeReserve(command.reservationId());
@@ -55,7 +60,7 @@ public class ReservationFacade {
         Payment payment = paymentService.processPayment(
                 command.reservationId(),
                 command.userId(),
-                command.amount()
+                amount
         );
 
         // 토큰 만료 처리

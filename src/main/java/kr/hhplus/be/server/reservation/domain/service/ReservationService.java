@@ -22,6 +22,11 @@ public class ReservationService {
 
     private final ApplicationEventPublisher eventPublisher;
 
+    public Reservation getReservation(Long reservationId) {
+        return reservationRepository.findById(reservationId)
+                .orElseThrow(() -> new ReservationError(ReservationErrorCode.RESERVATION_NOT_FOUND));
+    }
+
     public Reservation createReservation(Long userId, Long seatId, Long price) {
         // 2. 새로운 예약 생성
         Reservation reservation = Reservation.createReservation(seatId, price, userId);
@@ -32,15 +37,15 @@ public class ReservationService {
 
     @Transactional
     public void pendingReservation(PaymentCommand command, String token) {
-        // 이벤트 생성
+        Reservation reservation = getReservation(command.reservationId());
+
         ReservationPendingEvent event = new ReservationPendingEvent(
                 command.reservationId(),
                 command.userId(),
-                command.amount(),
+                reservation.getPrice(),
                 token
         );
         eventPublisher.publishEvent(event);
-        //eventProducer.publishReservationPending(event);
     }
 
     @Transactional
