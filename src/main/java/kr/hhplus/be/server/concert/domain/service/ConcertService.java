@@ -9,6 +9,7 @@ import kr.hhplus.be.server.concert.presentation.dto.response.ConcertScheduleResp
 import kr.hhplus.be.server.concert.presentation.dto.response.ConcertSeatAvailableResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
@@ -69,6 +70,13 @@ public class ConcertService {
                 .orElseThrow(() -> new ConcertException(ConcertErrorCode.CONCERT_NOT_FOUND));
 
         return SeatResult.from(saved, schedule);
+    }
+
+    @Transactional
+    public void releaseSeat(Long seatId) {
+        Seat seat = seatRepository.findById(seatId)
+                .orElseThrow(() -> new ConcertException(ConcertErrorCode.SEAT_NOT_FOUND));
+        seat.release();
     }
 
     private List<ConcertSchedule> findScheduleOrThrow(Long concertId) {

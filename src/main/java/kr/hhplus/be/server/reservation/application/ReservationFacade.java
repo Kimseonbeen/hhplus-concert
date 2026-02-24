@@ -15,6 +15,8 @@ import kr.hhplus.be.server.reservation.application.dto.ReservationCommand;
 import kr.hhplus.be.server.reservation.application.dto.ReservationResult;
 import kr.hhplus.be.server.reservation.domain.model.Reservation;
 import kr.hhplus.be.server.reservation.domain.service.ReservationService;
+
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
@@ -30,6 +32,15 @@ public class ReservationFacade {
     private final ReservationService reservationService;
     private final PaymentService paymentService;
     private final BalanceService balanceService;
+
+    public void expireOverdueReservations() {
+        List<Reservation> expiredReservations = reservationService.findExpiredReservations();
+
+        for (Reservation reservation : expiredReservations) {
+            reservationService.expireReservation(reservation.getId());
+            concertService.releaseSeat(reservation.getSeatId());
+        }
+    }
 
     @Transactional
     public ReservationResult reserve(ReservationCommand command) {

@@ -13,6 +13,9 @@ import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
+import java.util.List;
+
 @Slf4j
 @Service
 @RequiredArgsConstructor
@@ -58,6 +61,19 @@ public class ReservationService {
         }
 
         reservation.complete();
+    }
+
+    public List<Reservation> findExpiredReservations() {
+        return reservationRepository.findAllByStatusAndExpiredAtBefore(
+                ReservationStatus.PENDING_PAYMENT, LocalDateTime.now()
+        );
+    }
+
+    @Transactional
+    public void expireReservation(Long reservationId) {
+        Reservation reservation = reservationRepository.findById(reservationId)
+                .orElseThrow(() -> new ReservationError(ReservationErrorCode.RESERVATION_NOT_FOUND));
+        reservation.expire();
     }
 
     @Transactional

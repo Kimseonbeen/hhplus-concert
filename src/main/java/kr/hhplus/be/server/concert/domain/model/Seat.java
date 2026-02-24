@@ -37,4 +37,8 @@ public class Seat {
         }
         this.status = SeatStatus.RESERVED;
     }
+
+    public void release() {
+        this.status = SeatStatus.AVAILABLE;
+    }
 }
