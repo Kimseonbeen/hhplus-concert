@@ -1,6 +1,6 @@
 package kr.hhplus.be.server.balance.domain.service;
 
-import kr.hhplus.be.server.balance.domain.exception.BalanceError;
+import kr.hhplus.be.server.balance.domain.exception.BalanceException;
 import kr.hhplus.be.server.balance.domain.exception.BalanceErrorCode;
 import kr.hhplus.be.server.balance.domain.model.Balance;
 import kr.hhplus.be.server.balance.domain.model.BalanceHistory;
@@ -26,7 +26,7 @@ public class BalanceService {
     public void decrease(Long userId, Long amount) {
         // 1. 잔액 조회
         Balance balance = balanceRepository.findByUserId(userId)
-                .orElseThrow(() -> new BalanceError(BalanceErrorCode.BALANCE_NOT_FOUND));
+                .orElseThrow(() -> new BalanceException(BalanceErrorCode.BALANCE_NOT_FOUND));
 
         // 2. 잔액 감소
         balance.decrease(amount);  // 잔액이 부족하면 여기서 예외 발생
@@ -40,7 +40,7 @@ public class BalanceService {
     @DistributedLock(key = "'point :' + #userId")
     public void increase(Long userId, Long amount) {
         Balance balance = balanceRepository.findByUserId(userId)
-                .orElseThrow(() -> new BalanceError(BalanceErrorCode.BALANCE_NOT_FOUND));
+                .orElseThrow(() -> new BalanceException(BalanceErrorCode.BALANCE_NOT_FOUND));
 
         balance.increase(amount);
 
@@ -51,6 +51,6 @@ public class BalanceService {
 
     public Balance getBalance(Long userId) {
         return balanceRepository.findByUserId(userId)
-                .orElseThrow(() -> new BalanceError(BalanceErrorCode.BALANCE_NOT_FOUND));
+                .orElseThrow(() -> new BalanceException(BalanceErrorCode.BALANCE_NOT_FOUND));
     }
 }
