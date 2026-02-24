@@ -2,7 +2,7 @@ name: Deploy to EC2
 
 on:
   push:
-    branches: [ feat/dev ]
+    branches: [ main ]
 
 jobs:
   build-and-push:
@@ -38,6 +38,7 @@ jobs:
           key: ${{ secrets.EC2_KEY }}
           port: ${{ secrets.EC2_PORT }}
           script: |
-            docker pull ksb9242/hhplus-concert:latest
             cd ~/app
+            git pull origin main
+            docker pull ksb9242/hhplus-concert:latest
             docker-compose up -d
