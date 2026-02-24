@@ -15,8 +15,11 @@ public record SeatResult(
 
 ) {
 
-    public static SeatResult from(Seat seat) {
+    public static SeatResult from(Seat seat, ConcertSchedule schedule) {
         return SeatResult.builder()
+                .scheduleId(schedule.getId())
+                .concertDate(schedule.getConcertDate())
+                .concertId(schedule.getConcertId())
                 .seatId(seat.getId())
                 .seatNum(seat.getSeatNum())
                 .price(seat.getPrice())

@@ -63,7 +63,12 @@ public class ConcertService {
 
         seat.reserved();
 
-        return SeatResult.from(seatRepository.save(seat));
+        Seat saved = seatRepository.save(seat);
+
+        ConcertSchedule schedule = concertScheduleRepository.findById(saved.getConcertScheduleId())
+                .orElseThrow(() -> new ConcertException(ConcertErrorCode.CONCERT_NOT_FOUND));
+
+        return SeatResult.from(saved, schedule);
     }
 
     private List<ConcertSchedule> findScheduleOrThrow(Long concertId) {
