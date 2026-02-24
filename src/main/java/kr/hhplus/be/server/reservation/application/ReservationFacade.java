@@ -1,6 +1,9 @@
 package kr.hhplus.be.server.reservation.application;
 
 import kr.hhplus.be.server.balance.domain.service.BalanceService;
+import jakarta.persistence.OptimisticLockException;
+import kr.hhplus.be.server.concert.domain.exception.ConcertErrorCode;
+import kr.hhplus.be.server.concert.domain.exception.ConcertException;
 import kr.hhplus.be.server.concert.domain.model.SeatResult;
 import kr.hhplus.be.server.concert.domain.service.ConcertService;
 import kr.hhplus.be.server.reservation.domain.event.PaymentCompletedEvent;
@@ -32,15 +35,18 @@ public class ReservationFacade {
 
     @Transactional
     public ReservationResult reserve(ReservationCommand command) {
+        try {
+            // 좌석 예약
+            SeatResult seatResult = concertService.reserveSeat(command.seatId());
 
-        // 좌석 예약
-        SeatResult seatResult = concertService.reserveSeat(command.seatId());
+            // 예약 생성
+            Reservation reservation = reservationService.createReservation(command.userId(), seatResult.seatId(), seatResult.price());
 
-        // 예약 생성
-        Reservation reservation = reservationService.createReservation(command.userId(), seatResult.seatId(), seatResult.price());
-
-        // 응답 생성
-        return ReservationResult.of(reservation, seatResult);
+            // 응답 생성
+            return ReservationResult.of(reservation, seatResult);
+        } catch (OptimisticLockException e) {
+            throw new ConcertException(ConcertErrorCode.SEAT_RESERVATION_CONFLICT);
+        }
     }
 
     @Transactional

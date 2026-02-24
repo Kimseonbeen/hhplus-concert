@@ -1,6 +1,9 @@
 package kr.hhplus.be.server.reservation.application;
 
+import jakarta.persistence.OptimisticLockException;
 import kr.hhplus.be.server.balance.domain.service.BalanceService;
+import kr.hhplus.be.server.concert.domain.exception.ConcertErrorCode;
+import kr.hhplus.be.server.concert.domain.exception.ConcertException;
 import kr.hhplus.be.server.concert.domain.model.ConcertSchedule;
 import kr.hhplus.be.server.concert.domain.model.Seat;
 import kr.hhplus.be.server.concert.domain.model.SeatResult;
@@ -102,6 +105,30 @@ class ReservationFacadeTest {
         assertEquals(seatId, result.seatId());
         assertEquals(50000L, result.price());
         assertEquals(ReservationStatus.PENDING_PAYMENT, result.status());
+    }
+
+    @Test
+    @DisplayName("동시 예약 충돌 시 409 예외가 발생한다")
+    void reserve_WhenOptimisticLockConflict_ThrowsConcertException() {
+        // given
+        Long userId = 1L;
+        Long seatId = 5L;
+
+        ReservationCommand command = ReservationCommand.builder()
+                .userId(userId)
+                .scheduleId(1L)
+                .seatId(seatId)
+                .build();
+
+        given(concertService.reserveSeat(seatId))
+                .willThrow(new OptimisticLockException("버전 충돌"));
+
+        // when & then
+        ConcertException exception = assertThrows(ConcertException.class,
+                () -> reservationFacade.reserve(command));
+
+        assertEquals(409, exception.getStatus());
+        assertEquals(ConcertErrorCode.SEAT_RESERVATION_CONFLICT.getCode(), exception.getErrorCode());
     }
 
     @Test
