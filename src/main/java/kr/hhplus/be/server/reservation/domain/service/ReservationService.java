@@ -53,6 +53,10 @@ public class ReservationService {
         Reservation reservation = reservationRepository.findByIdAndStatus(reservationId, ReservationStatus.PENDING_PAYMENT)
                 .orElseThrow(() -> new ReservationError(ReservationErrorCode.RESERVATION_NOT_FOUND));
 
+        if (reservation.isExpired()) {
+            throw new ReservationError(ReservationErrorCode.RESERVATION_EXPIRED);
+        }
+
         reservation.complete();
     }
 

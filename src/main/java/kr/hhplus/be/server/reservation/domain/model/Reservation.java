@@ -42,6 +42,10 @@ public class Reservation {
                 .build();
     }
 
+    public boolean isExpired() {
+        return this.expiredAt != null && this.expiredAt.isBefore(LocalDateTime.now());
+    }
+
     public void complete() {
         this.status = ReservationStatus.CONFIRMED;
     }

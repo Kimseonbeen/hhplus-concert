@@ -13,6 +13,10 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import kr.hhplus.be.server.reservation.domain.exception.ReservationError;
+import kr.hhplus.be.server.reservation.domain.exception.ReservationErrorCode;
+
+import java.time.LocalDateTime;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -71,6 +75,7 @@ class ReservationServiceTest {
         Reservation reservation = Reservation.builder()
                 .id(reservationId)
                 .status(ReservationStatus.PENDING_PAYMENT)
+                .expiredAt(LocalDateTime.now().plusMinutes(5))
                 .build();
 
         given(reservationRepository.findByIdAndStatus(
@@ -82,7 +87,30 @@ class ReservationServiceTest {
         reservationService.completeReserve(reservationId);
 
         // then
-        assertEquals(reservation.getStatus(), ReservationStatus.CONFIRMED);
+        assertEquals(ReservationStatus.CONFIRMED, reservation.getStatus());
         verify(reservationRepository).findByIdAndStatus(reservationId, ReservationStatus.PENDING_PAYMENT);
+    }
+
+    @Test
+    @DisplayName("만료된 예약은 결제 시 예외가 발생한다")
+    void completeReserve_WhenExpired_ThrowsException() {
+        // given
+        Long reservationId = 1L;
+        Reservation reservation = Reservation.builder()
+                .id(reservationId)
+                .status(ReservationStatus.PENDING_PAYMENT)
+                .expiredAt(LocalDateTime.now().minusMinutes(1))  // 이미 만료
+                .build();
+
+        given(reservationRepository.findByIdAndStatus(
+                reservationId,
+                ReservationStatus.PENDING_PAYMENT
+        )).willReturn(Optional.of(reservation));
+
+        // when & then
+        ReservationError exception = assertThrows(ReservationError.class,
+                () -> reservationService.completeReserve(reservationId));
+
+        assertEquals(ReservationErrorCode.RESERVATION_EXPIRED.getCode(), exception.getErrorCode());
     }
 }
