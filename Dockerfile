@@ -1,5 +1,6 @@
 # 빌드 스테이지
 FROM eclipse-temurin:17-jdk-jammy AS builder
+RUN apt-get update && apt-get install -y git
 WORKDIR /app
 COPY . .
 RUN ./gradlew clean build -x test
