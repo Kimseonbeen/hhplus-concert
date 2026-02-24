@@ -64,7 +64,7 @@ services:
       - default
 
   redis:
-    image: docker.io/bitnami/redis:7.4
+    image: bitnami/redis:latest
     environment:
       - ALLOW_EMPTY_PASSWORD=yes
       - REDIS_DISABLE_COMMANDS=FLUSHDB,FLUSHALL
