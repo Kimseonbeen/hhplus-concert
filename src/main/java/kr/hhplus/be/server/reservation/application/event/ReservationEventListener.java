@@ -1,5 +1,6 @@
 package kr.hhplus.be.server.reservation.application.event;
 
+import kr.hhplus.be.server.queueToken.domain.service.QueueTokenService;
 import kr.hhplus.be.server.reservation.infrastructure.client.DataPlatformClient;
 import kr.hhplus.be.server.reservation.domain.event.PaymentCompletedEvent;
 import lombok.RequiredArgsConstructor;
@@ -16,6 +17,7 @@ import static org.springframework.transaction.event.TransactionPhase.BEFORE_COMM
 @RequiredArgsConstructor
 public class ReservationEventListener {
     private final DataPlatformClient dataPlatformClient;
+    private final QueueTokenService queueTokenService;
 
     // outbox 저장
     @TransactionalEventListener(phase = BEFORE_COMMIT)
@@ -26,6 +28,9 @@ public class ReservationEventListener {
     @Async
     @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
     public void handlePaymentCompleted(PaymentCompletedEvent event) {
+        // 커밋 완료 후 토큰 만료 처리 (트랜잭션 롤백 영향 없음)
+        queueTokenService.expireToken(event.getToken());
+
         try {
             // 데이터 플랫폼 API 호출
             dataPlatformClient.sendReservationData(event.getPaymentId());

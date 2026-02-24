@@ -9,7 +9,6 @@ import kr.hhplus.be.server.concert.domain.service.ConcertService;
 import kr.hhplus.be.server.reservation.domain.event.PaymentCompletedEvent;
 import kr.hhplus.be.server.payment.domain.model.Payment;
 import kr.hhplus.be.server.payment.domain.service.PaymentService;
-import kr.hhplus.be.server.queueToken.domain.service.QueueTokenService;
 import kr.hhplus.be.server.reservation.application.dto.PaymentCommand;
 import kr.hhplus.be.server.reservation.application.dto.PaymentResult;
 import kr.hhplus.be.server.reservation.application.dto.ReservationCommand;
@@ -31,7 +30,6 @@ public class ReservationFacade {
     private final ReservationService reservationService;
     private final PaymentService paymentService;
     private final BalanceService balanceService;
-    private final QueueTokenService queueTokenService;
 
     @Transactional
     public ReservationResult reserve(ReservationCommand command) {
@@ -69,11 +67,8 @@ public class ReservationFacade {
                 amount
         );
 
-        // 토큰 만료 처리
-        queueTokenService.expireToken(token);
-
-        // 예약 결제 완료 이벤트 발송
-        eventPublisher.publishEvent(new PaymentCompletedEvent(payment.getId()));
+        // 예약 결제 완료 이벤트 발송 (AFTER_COMMIT에서 토큰 만료 처리)
+        eventPublisher.publishEvent(new PaymentCompletedEvent(payment.getId(), token));
 
         return PaymentResult.from(payment);
     }

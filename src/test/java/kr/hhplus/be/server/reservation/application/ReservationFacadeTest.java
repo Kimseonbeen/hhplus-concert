@@ -11,17 +11,18 @@ import kr.hhplus.be.server.concert.domain.model.SeatStatus;
 import kr.hhplus.be.server.concert.domain.service.ConcertService;
 import kr.hhplus.be.server.payment.domain.model.Payment;
 import kr.hhplus.be.server.payment.domain.service.PaymentService;
-import kr.hhplus.be.server.queueToken.domain.service.QueueTokenService;
 import kr.hhplus.be.server.reservation.application.dto.PaymentCommand;
 import kr.hhplus.be.server.reservation.application.dto.PaymentResult;
 import kr.hhplus.be.server.reservation.application.dto.ReservationCommand;
 import kr.hhplus.be.server.reservation.application.dto.ReservationResult;
+import kr.hhplus.be.server.reservation.domain.event.PaymentCompletedEvent;
 import kr.hhplus.be.server.reservation.domain.model.Reservation;
 import kr.hhplus.be.server.reservation.domain.model.ReservationStatus;
 import kr.hhplus.be.server.reservation.domain.service.ReservationService;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
@@ -50,9 +51,6 @@ class ReservationFacadeTest {
 
     @Mock
     private BalanceService balanceService;
-
-    @Mock
-    private QueueTokenService queueTokenService;
 
     @Mock
     private ApplicationEventPublisher eventPublisher;
@@ -209,7 +207,10 @@ class ReservationFacadeTest {
         // when
         reservationFacade.completePayment(command, token);
 
-        // then
-        verify(queueTokenService).expireToken(token);
+        // then: 이벤트에 token이 포함되어 발행됨 (AFTER_COMMIT 리스너에서 처리)
+        ArgumentCaptor<Object> captor = ArgumentCaptor.forClass(Object.class);
+        verify(eventPublisher).publishEvent(captor.capture());
+        PaymentCompletedEvent publishedEvent = (PaymentCompletedEvent) captor.getValue();
+        assertEquals(token, publishedEvent.getToken());
     }
 }
