@@ -1,6 +1,6 @@
 package kr.hhplus.be.server.balance.domain.model;
 
-import kr.hhplus.be.server.balance.domain.exception.BalanceError;
+import kr.hhplus.be.server.balance.domain.exception.BalanceException;
 import kr.hhplus.be.server.balance.domain.exception.BalanceErrorCode;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -44,7 +44,7 @@ class BalanceTest {
         long decreaseAmount = 4000L;
 
         // when
-        BalanceError balanceError = assertThrows(BalanceError.class, () -> {
+        BalanceException balanceError = assertThrows(BalanceException.class, () -> {
             balance.decrease(decreaseAmount);
         });
 
@@ -72,7 +72,7 @@ class BalanceTest {
         long increaseAmount = 0L;
 
         // when
-        BalanceError balanceError =  assertThrows(BalanceError.class, () -> {
+        BalanceException balanceError =  assertThrows(BalanceException.class, () -> {
             balance.increase(increaseAmount);
         });
 

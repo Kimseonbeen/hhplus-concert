@@ -3,6 +3,7 @@ package kr.hhplus.be.server.balance.domain;
 import kr.hhplus.be.server.balance.domain.model.Balance;
 import kr.hhplus.be.server.balance.domain.repository.BalanceRepository;
 import kr.hhplus.be.server.balance.domain.service.BalanceService;
+import kr.hhplus.be.server.common.exception.TooManyRequestsException;
 import kr.hhplus.be.server.user.domain.model.User;
 import kr.hhplus.be.server.user.domain.repository.UserRepository;
 import org.junit.jupiter.api.AfterEach;
@@ -33,14 +34,15 @@ public class ConcurrentBalanceIntegrationTest {
     @Autowired
     private BalanceRepository balanceRepository;
 
+    Long userId;
+
     @BeforeEach
     void init() {
-        User user = User.builder()
-                .build();
-        userRepository.save(user);
+        User user = userRepository.save(User.builder().build());
+        userId = user.getId();
 
         Balance balance = Balance.builder()
-                .userId(1L)
+                .userId(userId)
                 .amount(10_000L)
                 .build();
         balanceRepository.save(balance);
@@ -55,7 +57,6 @@ public class ConcurrentBalanceIntegrationTest {
     @Test
     void 포인트_차감_연속_두번_요청시_두번째는_실패한다() throws InterruptedException {
         // given
-        Long userId = 1L;
         Long amount = 1000L;
         CountDownLatch latch = new CountDownLatch(2);
         AtomicInteger successCount = new AtomicInteger();
@@ -68,7 +69,7 @@ public class ConcurrentBalanceIntegrationTest {
                 try {
                     balanceService.decrease(userId, amount);
                     successCount.incrementAndGet();
-                } catch (IllegalStateException e) {
+                } catch (TooManyRequestsException e) {
                     failMessage.set(e.getMessage());
                     failCount.incrementAndGet();
                 } finally {
@@ -90,7 +91,6 @@ public class ConcurrentBalanceIntegrationTest {
     @Test
     void 포인트_증감_연속_두번_요청시_두번째는_실패한다() throws InterruptedException {
         // given
-        Long userId = 1L;
         Long amount = 1000L;
         CountDownLatch latch = new CountDownLatch(2);
         AtomicInteger successCount = new AtomicInteger();
@@ -103,7 +103,7 @@ public class ConcurrentBalanceIntegrationTest {
                 try {
                     balanceService.increase(userId, amount);
                     successCount.incrementAndGet();
-                } catch (IllegalStateException e) {
+                } catch (TooManyRequestsException e) {
                     failMessage.set(e.getMessage());
                     failCount.incrementAndGet();
                 } finally {

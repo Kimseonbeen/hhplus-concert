@@ -1,6 +1,6 @@
 package kr.hhplus.be.server.balance.domain;
 
-import kr.hhplus.be.server.balance.domain.exception.BalanceError;
+import kr.hhplus.be.server.balance.domain.exception.BalanceException;
 import kr.hhplus.be.server.balance.domain.model.Balance;
 import kr.hhplus.be.server.balance.domain.model.BalanceHistory;
 import kr.hhplus.be.server.balance.domain.repository.BalanceHistoryRepository;
@@ -71,7 +71,7 @@ class BalanceServiceTest {
                 .willReturn(Optional.of(balance));
 
         // when & then
-        assertThrows(BalanceError.class,
+        assertThrows(BalanceException.class,
                 () -> balanceService.decrease(userId, amount));
         verify(balanceHistoryRepository, never()).save(any());
     }
@@ -118,7 +118,7 @@ class BalanceServiceTest {
                 .willReturn(Optional.of(balance));
 
         // when & then
-        assertThrows(BalanceError.class,
+        assertThrows(BalanceException.class,
                 () -> balanceService.increase(userId, invalidAmount));
         verify(balanceHistoryRepository, never()).save(any());
     }
