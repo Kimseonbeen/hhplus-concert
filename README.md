@@ -30,6 +30,87 @@
 
 ## 아키텍처
 
+### 시스템 구성
+
+```mermaid
+graph TB
+    Client([Client])
+
+    subgraph EC2[AWS EC2]
+        App["Spring Boot App\n:8080"]
+        subgraph Infra[Infrastructure]
+            MySQL[("MySQL 8.0\n:3306")]
+            Redis[("Redis\n:6379")]
+            Kafka["Apache Kafka\n:10000~10002"]
+        end
+    end
+
+    subgraph CICD[CI/CD]
+        GH["GitHub Actions"]
+        DH["Docker Hub"]
+    end
+
+    Client --> App
+    App --> MySQL
+    App --> Redis
+    App --> Kafka
+    GH -->|"이미지 빌드 & 푸시"| DH
+    DH -->|"docker pull & 재시작"| EC2
+```
+
+### 대기열 토큰 흐름
+
+```mermaid
+graph LR
+    User([User])
+
+    subgraph Redis
+        ZSET["ZSET\nwaiting-token\n(선착순 대기)"]
+        STR["String\nactive-token:{token}\n(TTL 10분)"]
+    end
+
+    Scheduler["스케줄러\n30초마다\nLua 스크립트 원자적 처리"]
+
+    User -->|토큰 발급| Check{"ACTIVE 슬롯\n여유?"}
+    Check -->|"Yes"| STR
+    Check -->|"No"| ZSET
+    ZSET -->|"최대 150명 활성화"| Scheduler
+    Scheduler --> STR
+    STR -->|"결제 완료"| Delete["토큰 삭제"]
+```
+
+### 예약 및 결제 흐름
+
+```mermaid
+sequenceDiagram
+    participant C as Client
+    participant I as Interceptor
+    participant F as ReservationFacade
+    participant CS as ConcertService
+    participant BS as BalanceService
+    participant Redis
+    participant DB as MySQL
+
+    C->>I: POST /reserve (TOKEN 헤더)
+    I->>Redis: ACTIVE 토큰 검증
+    I->>F: reserve()
+    F->>CS: reserveSeat() (낙관적 락 @Version)
+    CS->>DB: 좌석 상태 RESERVED 업데이트
+    F->>DB: Reservation 생성 (PENDING_PAYMENT, 5분 만료)
+    F-->>C: 예약 응답
+
+    C->>I: POST /payment (TOKEN 헤더)
+    I->>F: completePayment()
+    F->>BS: decrease() (분산 락 @DistributedLock)
+    BS->>DB: 잔액 차감
+    F->>DB: 예약 상태 CONFIRMED, 결제 내역 저장
+    Note over F,Redis: DB 커밋 완료 후 (AFTER_COMMIT)
+    F->>Redis: 토큰 만료 처리
+    F-->>C: 결제 응답
+```
+
+### 도메인 모듈 구조
+
 도메인 단위의 모듈형 레이어드 아키텍처를 따릅니다.
 
 ```
@@ -77,7 +158,7 @@ docker-compose up -d
 
 ## CI/CD 파이프라인
 
-`feat/dev` 브랜치에 push하면 자동으로 빌드 & 배포됩니다.
+`main` 브랜치에 머지되면 자동으로 빌드 & 배포됩니다.
 
 ```
 git push → GitHub Actions
