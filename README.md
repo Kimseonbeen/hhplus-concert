@@ -37,11 +37,11 @@ graph TB
     Client([Client])
 
     subgraph EC2[AWS EC2]
-        App["Spring Boot App\n:8080"]
+        App["Spring Boot App<br/>:8080"]
         subgraph Infra[Infrastructure]
-            MySQL[("MySQL 8.0\n:3306")]
-            Redis[("Redis\n:6379")]
-            Kafka["Apache Kafka\n:10000~10002"]
+            MySQL[("MySQL 8.0<br/>:3306")]
+            Redis[("Redis<br/>:6379")]
+            Kafka["Apache Kafka<br/>:10000~10002"]
         end
     end
 
@@ -65,13 +65,13 @@ graph LR
     User([User])
 
     subgraph Redis
-        ZSET["ZSET\nwaiting-token\n(선착순 대기)"]
-        STR["String\nactive-token:{token}\n(TTL 10분)"]
+        ZSET["ZSET<br/>waiting-token<br/>(선착순 대기)"]
+        STR["String<br/>active-token:{token}<br/>(TTL 10분)"]
     end
 
-    Scheduler["스케줄러\n30초마다\nLua 스크립트 원자적 처리"]
+    Scheduler["스케줄러<br/>30초마다<br/>Lua 스크립트 원자적 처리"]
 
-    User -->|토큰 발급| Check{"ACTIVE 슬롯\n여유?"}
+    User -->|토큰 발급| Check{"ACTIVE 슬롯<br/>여유?"}
     Check -->|"Yes"| STR
     Check -->|"No"| ZSET
     ZSET -->|"최대 150명 활성화"| Scheduler
