@@ -20,14 +20,11 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.transaction.support.TransactionTemplate;
-import org.testcontainers.junit.jupiter.Testcontainers;
-
 import java.time.LocalDateTime;
 
 import static org.junit.jupiter.api.Assertions.*;
 
 @SpringBootTest
-@Testcontainers
 @ActiveProfiles("test")
 class AfterCommitTokenExpiryIntegrationTest {
 
@@ -102,7 +99,7 @@ class AfterCommitTokenExpiryIntegrationTest {
         // when - 트랜잭션 내에서 이벤트 발행 후 강제 롤백
         // AFTER_COMMIT은 트랜잭션이 커밋되어야 실행되므로, 롤백 시 리스너가 실행되지 않아야 함
         transactionTemplate.execute(status -> {
-            eventPublisher.publishEvent(new PaymentCompletedEvent(1L, TEST_TOKEN));
+            eventPublisher.publishEvent(new PaymentCompletedEvent(1L, TEST_TOKEN, null));
             status.setRollbackOnly(); // 이벤트 발행 후 강제 롤백
             return null;
         });
