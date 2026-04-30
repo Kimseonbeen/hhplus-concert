@@ -58,18 +58,17 @@ public class ConcertService {
          return ConcertSeatAvailableResponse.from(schedule, availableSeats);
     }
 
+    @Transactional
     public SeatResult reserveSeat(Long seatId) {
         Seat seat = seatRepository.findById(seatId)
                 .orElseThrow(() -> new ConcertException(ConcertErrorCode.SEAT_NOT_FOUND));
 
         seat.reserved();
 
-        Seat saved = seatRepository.save(seat);
-
-        ConcertSchedule schedule = concertScheduleRepository.findById(saved.getConcertScheduleId())
+        ConcertSchedule schedule = concertScheduleRepository.findById(seat.getConcertScheduleId())
                 .orElseThrow(() -> new ConcertException(ConcertErrorCode.CONCERT_NOT_FOUND));
 
-        return SeatResult.from(saved, schedule);
+        return SeatResult.from(seat, schedule);
     }
 
     @Transactional
