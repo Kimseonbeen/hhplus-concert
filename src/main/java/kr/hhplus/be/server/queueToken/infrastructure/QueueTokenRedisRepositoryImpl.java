@@ -91,8 +91,10 @@ public class QueueTokenRedisRepositoryImpl implements QueueTokenRepository {
     public void save(QueueToken queueToken) {
         String token = queueToken.getToken();
         if (queueToken.getStatus() == QueueTokenStatus.ACTIVE) {
+            // String: active-token:{token} → TTL 10분
             redisTemplate.opsForValue().set(ACTIVE_TOKEN_PREFIX + ":" + token, token, TOKEN_TTL);
         } else {
+            // ZSET: score = 현재 시각(밀리초) → 먼저 들어온 순 정렬
             redisTemplate.opsForZSet().add(WAITING_TOKEN_PREFIX, token, System.currentTimeMillis());
         }
     }
