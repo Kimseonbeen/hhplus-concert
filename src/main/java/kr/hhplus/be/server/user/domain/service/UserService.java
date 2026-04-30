@@ -13,8 +13,8 @@ public class UserService {
 
     private final UserRepository userRepository;
 
-    public User findById(long userId) {
-        return userRepository.findById(userId)
+    public void findById(long userId) {
+        userRepository.findById(userId)
                 .orElseThrow(() -> new CustomException(400, "USER_NOT_FOUND", "해당 유저가 존재하지 않습니다.", LogLevel.WARN));
     }
 

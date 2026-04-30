@@ -1,10 +1,7 @@
 package kr.hhplus.be.server.queueToken.domain.model;
 
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import java.time.LocalDateTime;
 import java.util.UUID;
@@ -12,10 +9,9 @@ import java.util.UUID;
 @Entity
 @Getter
 @Builder
-@NoArgsConstructor
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor
 public class QueueToken {
-
     @Id @Column
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -35,12 +31,9 @@ public class QueueToken {
 
     private Long position;
 
-    public static QueueToken issueToken(Long userId, Long activeCount, Long waitingCount) {
-        QueueTokenStatus status = (activeCount < QueueConstants.MAX_ACTIVE_USERS && waitingCount == 0) ?
-                QueueTokenStatus.ACTIVE : QueueTokenStatus.WAITING;
-
-        String userData = userId + LocalDateTime.now().toString();
-        String token = UUID.nameUUIDFromBytes(userData.getBytes()).toString();
+    public static QueueToken createToken(Long userId, QueueTokenStatus status) {
+        String userDate = userId + LocalDateTime.now().toString();
+        String token = UUID.nameUUIDFromBytes(userDate.getBytes()).toString();
 
         return QueueToken.builder()
                 .token(token)
@@ -70,6 +63,4 @@ public class QueueToken {
         this.status = QueueTokenStatus.ACTIVE;
         this.expiredAt = LocalDateTime.now().plusMinutes(10);
     }
-
-
 }

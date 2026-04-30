@@ -37,3 +37,10 @@ out/
 .vscode/
 
 data
+
+# Redis AOF 및 RDB 파일 제외
+redis_data/
+
+# Claude Code
+CLAUDE.md
+PROJECT_SUMMARY.md

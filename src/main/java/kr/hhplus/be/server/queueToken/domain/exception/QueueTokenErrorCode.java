@@ -15,7 +15,6 @@ public enum QueueTokenErrorCode {
     private final String msg;
     private final LogLevel logLevel;
 
-
     QueueTokenErrorCode(int status, String code, String msg, LogLevel logLevel) {
         this.status = status;
         this.code = code;

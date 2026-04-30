@@ -16,21 +16,16 @@ public class QueueTokenFacade {
     private final UserService userService;
 
     @Transactional
-    public QueueToken issueQueueToken(long userId) {
+    public QueueToken createToken(Long userId) {
         // 1. 존재하는 유저인지 확인 한다.
         userService.findById(userId);
 
         // 2. 토큰 생성
-        return queueTokenService.issueQueueToken(userId);
+        return queueTokenService.createToken(userId);
     }
 
-    public QueueTokenResponse getQueueTokenStatus(String token, long userId) {
-        // 1. 존재하는 유저인지 확인 한다.
-        userService.findById(userId);
-
+    public QueueTokenResponse getQueueTokenStatus(String token) {
         // 2. 토큰 반환
         return queueTokenService.getQueueToken(token);
     }
-
-
 }

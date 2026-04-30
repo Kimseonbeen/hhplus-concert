@@ -7,4 +7,6 @@ import lombok.Getter;
 @Getter
 public class PaymentCompletedEvent {
     private final Long paymentId;
+    private final String token;
+    private final Long outboxId;
 }

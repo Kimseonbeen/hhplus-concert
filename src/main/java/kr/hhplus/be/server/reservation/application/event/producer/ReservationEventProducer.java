@@ -31,7 +31,6 @@ public class ReservationEventProducer {
 
     // 예약 완료 로직이 실패 ! 잔액을 롤백해줘야함
     public void publishReservationFailed(ReservationResultEvent event) throws JsonProcessingException {
-        System.out.println("ReservationEventProducer.publishReservationFailed");
         String eventJson = objectMapper.writeValueAsString(event);
         kafkaTemplate.send("balance-rollback", event.getUserId().toString(), eventJson);
     }

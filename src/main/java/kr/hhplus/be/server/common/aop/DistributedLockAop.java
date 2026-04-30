@@ -1,6 +1,7 @@
 package kr.hhplus.be.server.common.aop;
 
 import kr.hhplus.be.server.common.annotation.DistributedLock;
+import kr.hhplus.be.server.common.exception.TooManyRequestsException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.aspectj.lang.ProceedingJoinPoint;
@@ -33,12 +34,6 @@ public class DistributedLockAop {
     // 트렌젝션 처리를 위한 AOP
     private final AopForTransaction aopForTransaction;
 
-    /**
-     * @DistributedLock 어노테이션이 붙은 메서드에 적용되는 AOP
-     */
-    private static final String REQUEST_HISTORY_PREFIX = "REQUEST_HISTORY:";
-    private static final long BLOCK_TIME_SECONDS = 2;  // 2초 동안 추가 요청 차단
-
     @Around("@annotation(kr.hhplus.be.server.common.annotation.DistributedLock)")
     public Object lock(final ProceedingJoinPoint joinPoint) throws Throwable {
         MethodSignature signature = (MethodSignature) joinPoint.getSignature();
@@ -57,10 +52,10 @@ public class DistributedLockAop {
             /**
              * 0: 락 획득 대기시간 (즉시 시도)
              */
-            boolean acquired = rLock.tryLock(0, distributedLock.waitTime(), distributedLock.timeUnit());
+            boolean acquired = rLock.tryLock(0, distributedLock.leaseTime(), distributedLock.timeUnit());
             if (!acquired) {
                 log.warn("연속 요청 차단: {}", key);
-                throw new IllegalStateException("연속 요청은 처리할 수 없습니다");
+                throw new TooManyRequestsException("연속 요청은 처리할 수 없습니다");
             }
 
             log.info("락 획득 성공: {}", key);

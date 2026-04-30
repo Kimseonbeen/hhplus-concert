@@ -9,7 +9,7 @@ import java.time.LocalDateTime;
 @Builder
 @Schema(description = "예약 가능 날짜 요청")
 public record ConcertScheduleResponse(
-        long concertScheduleId,
+        Long concertScheduleId,
         LocalDateTime concertDate
 ) {
 

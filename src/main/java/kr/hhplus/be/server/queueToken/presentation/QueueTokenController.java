@@ -17,33 +17,25 @@ import org.springframework.web.bind.annotation.*;
 @RequiredArgsConstructor
 @Tag(name = "QueueToken API", description = "대기열 토큰 관련 API")
 public class QueueTokenController {
-
     private final QueueTokenFacade queueTokenFacade;
+    private final QueueTokenService queueTokenService;
 
     // 대기열 토큰을 발급한다.
     @Operation(summary = "대기열 토큰 발급", description = "대기열 토큰을 발급합니다.")
     @PostMapping("/token")
-    public ResponseEntity<QueueTokenResponse> issueToken(@RequestBody QueueTokenRequest request) {
-
+    public ResponseEntity<QueueTokenResponse> createToken(@RequestBody QueueTokenRequest request) {
         // 토큰 생성
-        QueueToken queueToken = queueTokenFacade.issueQueueToken(request.userId());
+        QueueToken queueToken = queueTokenFacade.createToken(request.userId());
 
-        QueueTokenResponse response = QueueTokenResponse.builder()
-                .expiredAt(queueToken.getExpiredAt())
-                .token(queueToken.getToken())
-                .status(queueToken.getStatus())
-                .build();
-
-        return ResponseEntity.ok(response);
+        return ResponseEntity.ok(QueueTokenResponse.from(queueToken));
     }
 
     // 대기열 정보를 조회한다.
-    @Operation(summary = "대기열 토큰 조회", description = "대기열 토큰을 조회합니다.")
-    @GetMapping("/token/{userId}")
-    public ResponseEntity<QueueTokenResponse> getQueueToken(@PathVariable long userId,
-                                                            @Parameter(description = "대기열 토큰", required = true) @RequestHeader("TOKEN") String token) {
+    @Operation(summary = "대기열 토큰 조회", description = "소지한 토큰의 현재 상태(Active/Waiting)와 순번을 조회합니다.")
+    @GetMapping("/status")
+    public ResponseEntity<QueueTokenResponse> getQueueToken(@Parameter(description = "대기열 토큰", required = true)
+                                                            @RequestHeader("TOKEN") String token) {
 
-        return ResponseEntity.ok(queueTokenFacade.getQueueTokenStatus(token, userId));
+        return ResponseEntity.ok(queueTokenService.getQueueToken(token));
     }
-
 }

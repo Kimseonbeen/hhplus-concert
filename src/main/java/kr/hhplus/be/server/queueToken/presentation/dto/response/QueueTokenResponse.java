@@ -11,7 +11,7 @@ import java.time.LocalDateTime;
 public record QueueTokenResponse(
         String token,
         QueueTokenStatus status,
-        long num,
+        Long num,
         LocalDateTime expiredAt
 ) {
 
@@ -19,16 +19,7 @@ public record QueueTokenResponse(
         return QueueTokenResponse.builder()
                 .token(queueToken.getToken())
                 .status(queueToken.getStatus())
-                //.num(queueToken.getWaitingNumber())
-                .expiredAt(queueToken.getExpiredAt())
-                .build();
-   }
-
-    public static QueueTokenResponse of(QueueToken queueToken) {
-        return QueueTokenResponse.builder()
-                .token(queueToken.getToken())
-                .status(queueToken.getStatus())
-                .num(queueToken.getPosition())
+                .num(queueToken.getPosition() != null ? queueToken.getPosition() : 0L)
                 .expiredAt(queueToken.getExpiredAt())
                 .build();
     }

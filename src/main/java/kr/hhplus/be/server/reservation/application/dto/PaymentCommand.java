@@ -6,7 +6,6 @@ import lombok.Builder;
 public record PaymentCommand(
         Long reservationId,
         Long userId,
-        Long amount,
         String token
 ) {
 }

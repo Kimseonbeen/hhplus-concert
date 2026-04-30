@@ -1,7 +1,7 @@
 package kr.hhplus.be.server.balance.domain.model;
 
 import jakarta.persistence.*;
-import kr.hhplus.be.server.balance.domain.exception.BalanceError;
+import kr.hhplus.be.server.balance.domain.exception.BalanceException;
 import kr.hhplus.be.server.balance.domain.exception.BalanceErrorCode;
 import lombok.*;
 
@@ -22,15 +22,18 @@ public class Balance {
     private Long amount;
 
     public void decrease(Long amount) {
+        if (amount <= 0) {
+            throw new BalanceException(BalanceErrorCode.INVALID_AMOUNT);
+        }
         if (this.amount < amount) {
-            throw new BalanceError(BalanceErrorCode.INSUFFICIENT_BALANCE);
+            throw new BalanceException(BalanceErrorCode.INSUFFICIENT_BALANCE);
         }
         this.amount -= amount;
     }
 
     public void increase(Long amount) {
         if (amount <= 0) {
-            throw new BalanceError(BalanceErrorCode.INVALID_AMOUNT);
+            throw new BalanceException(BalanceErrorCode.INVALID_AMOUNT);
         }
         this.amount += amount;
     }

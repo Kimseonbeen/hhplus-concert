@@ -1,6 +1,6 @@
 package kr.hhplus.be.server.payment.domain.service;
 
-import jakarta.transaction.Transactional;
+import org.springframework.transaction.annotation.Transactional;
 import kr.hhplus.be.server.payment.domain.model.Payment;
 import kr.hhplus.be.server.payment.domain.repository.PaymentRepository;
 import lombok.RequiredArgsConstructor;

@@ -18,7 +18,7 @@ public class ApiControllerAdvice extends ResponseEntityExceptionHandler {
     private final HttpServletRequest request;
 
     @ExceptionHandler(value = {CustomException.class})
-    public ResponseEntity<ErrorResponse> handleIllegalArgumentException(CustomException e) {
+    public ResponseEntity<ErrorResponse> handleCustomException(CustomException e) {
 
         String errorLog = String.format("[%s] ErrorCode: %s, Message: %s, Path: %s",
                 e.getClass().getSimpleName(),

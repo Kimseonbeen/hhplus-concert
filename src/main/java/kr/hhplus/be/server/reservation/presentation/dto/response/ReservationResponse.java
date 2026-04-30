@@ -20,6 +20,16 @@ public record ReservationResponse(
 ) {
         public static ReservationResponse from(ReservationResult reservation) {
                 return ReservationResponse.builder()
+                        .reservationId(reservation.reservationId())
+                        .concertId(reservation.concertId())
+                        .concertAt(reservation.concertAt())
+                        .seat(SeatResponse.builder()
+                                .seatId(reservation.seatId())
+                                .seatNo(reservation.seatNum().longValue())
+                                .seatPrice(reservation.price())
+                                .build())
+                        .reservationStatus(reservation.status())
+                        .expiredAt(reservation.expiredAt())
                         .build();
         }
 
