@@ -5,9 +5,6 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import kr.hhplus.be.server.reservation.application.ReservationFacade;
 import kr.hhplus.be.server.reservation.application.dto.PaymentResult;
 import kr.hhplus.be.server.reservation.application.dto.ReservationResult;
-
-import kr.hhplus.be.server.reservation.application.event.ReservationCreatedEventListener;
-import kr.hhplus.be.server.reservation.domain.service.ReservationService;
 import kr.hhplus.be.server.reservation.presentation.dto.request.PaymentRequest;
 import kr.hhplus.be.server.reservation.presentation.dto.request.ReservationRequest;
 import kr.hhplus.be.server.reservation.presentation.dto.response.PaymentResponse;
@@ -24,35 +21,18 @@ public class ReservationController {
 
     private final ReservationFacade reservationFacade;
 
-    private final ReservationService reservationService;
-
-    private final ReservationCreatedEventListener reservationCreatedEventListener;
-
-    // 콘서트 좌석 예약
     @Operation(summary = "콘서트 좌석 예약", description = "콘서트 좌석 예약합니다.")
     @PostMapping("/reserve")
     public ResponseEntity<ReservationResponse> createReserve(@RequestBody ReservationRequest request) {
-
         ReservationResult reserve = reservationFacade.reserve(request.toCommand());
-
         return ResponseEntity.ok(ReservationResponse.from(reserve));
     }
 
-    // 콘서트 좌석 결제
     @Operation(summary = "콘서트 좌석 결제", description = "콘서트 좌석을 결제합니다")
     @PostMapping("/payment")
     public ResponseEntity<PaymentResponse> createPayment(@RequestBody PaymentRequest request,
                                                          @RequestHeader("TOKEN") String token) {
         PaymentResult payment = reservationFacade.completePayment(request.toCommand(), token);
-
         return ResponseEntity.ok(PaymentResponse.from(payment));
-    }
-
-    @PostMapping("/test")
-    public ResponseEntity<String> test(@RequestBody PaymentRequest request,
-                                                         @RequestHeader("TOKEN") String token) {
-        reservationService.pendingReservation(request.toCommand(), token);
-
-        return ResponseEntity.ok("t");
     }
 }
