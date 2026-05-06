@@ -1,7 +1,6 @@
 package kr.hhplus.be.server.common.outbox;
 
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import kr.hhplus.be.server.common.serializer.DataSerializer;
 import kr.hhplus.be.server.reservation.infrastructure.client.DataPlatformClient;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -11,6 +10,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Map;
 
 @Slf4j
 @Component
@@ -19,7 +19,6 @@ public class OutboxEventScheduler {
 
     private final OutboxEventRepository outboxEventRepository;
     private final DataPlatformClient dataPlatformClient;
-    private final ObjectMapper objectMapper;
 
     @Scheduled(fixedDelay = 10 * 1000) // 10초마다
     @Transactional
@@ -46,11 +45,11 @@ public class OutboxEventScheduler {
     }
 
     private void process(OutboxEvent event) throws Exception {
-        JsonNode payload = objectMapper.readTree(event.getPayload());
+        Map payload = DataSerializer.deserialize(event.getPayload(), Map.class);
 
         switch (event.getEventType()) {
             case DATA_PLATFORM_SEND -> {
-                Long paymentId = payload.get("paymentId").asLong();
+                Long paymentId = Long.valueOf(payload.get("paymentId").toString());
                 dataPlatformClient.sendReservationData(paymentId);
                 log.info("데이터 플랫폼 전송 완료: paymentId={}", paymentId);
             }
