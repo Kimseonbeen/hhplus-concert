@@ -23,10 +23,13 @@ export let options = {
   },
 };
 export default function () {
+  const userIds = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
+  const userId = userIds[Math.floor(Math.random() * userIds.length)];
+
   const response1 = http.post(
       "http://localhost:8080/api/queue/token",
       JSON.stringify({
-        userId: 1
+        userId: userId
       }),
       {
         headers: {

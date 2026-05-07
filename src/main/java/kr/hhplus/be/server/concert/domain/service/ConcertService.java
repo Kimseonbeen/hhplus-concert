@@ -8,12 +8,12 @@ import kr.hhplus.be.server.concert.domain.exception.ConcertErrorCode;
 import kr.hhplus.be.server.concert.presentation.dto.response.ConcertScheduleResponse;
 import kr.hhplus.be.server.concert.presentation.dto.response.ConcertSeatAvailableResponse;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
-
-import static java.util.stream.Collectors.*;
 
 @Service
 @RequiredArgsConstructor
@@ -22,11 +22,12 @@ public class ConcertService {
     private final ConcertScheduleRepository concertScheduleRepository;
     private final SeatRepository seatRepository;
 
-    public List<ConcertScheduleResponse> getConcertSchedules(Long concertId) {
-        return findScheduleOrThrow(concertId)
-                .stream()
-                .map(ConcertScheduleResponse::from)
-                .toList();
+    public Page<ConcertScheduleResponse> getConcertSchedules(Long concertId, Pageable pageable) {
+        Page<ConcertSchedule> schedules = concertScheduleRepository.findAvailableSchedule(concertId, pageable);
+        if (schedules.isEmpty()) {
+            throw new ConcertException(ConcertErrorCode.CONCERT_NOT_FOUND);
+        }
+        return schedules.map(ConcertScheduleResponse::from);
     }
 
     public ConcertSeatAvailableResponse getAvailableSeats(Long concertScheduleId) {
@@ -78,12 +79,4 @@ public class ConcertService {
         seat.release();
     }
 
-    private List<ConcertSchedule> findScheduleOrThrow(Long concertId) {
-        List<ConcertSchedule> availableSchedule = concertScheduleRepository.findAvailableSchedule(concertId);
-        if (availableSchedule.isEmpty()) {
-            throw new ConcertException(ConcertErrorCode.CONCERT_NOT_FOUND);
-        }
-
-        return availableSchedule;
-    }
 }
