@@ -32,6 +32,7 @@ jobs:
     steps:
       - name: EC2 배포
         uses: appleboy/ssh-action@master
+        continue-on-error: true
         with:
           host: ${{ secrets.EC2_HOST }}
           username: ${{ secrets.EC2_USER }}
