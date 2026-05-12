@@ -4,6 +4,8 @@ import kr.hhplus.be.server.common.serializer.DataSerializer;
 import kr.hhplus.be.server.reservation.infrastructure.client.DataPlatformClient;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.redisson.api.RLock;
+import org.redisson.api.RedissonClient;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
@@ -17,21 +19,37 @@ import java.util.Map;
 @RequiredArgsConstructor
 public class OutboxEventScheduler {
 
+    private static final String OUTBOX_SCHEDULER_LOCK = "LOCK:outbox-scheduler";
+
     private final OutboxEventRepository outboxEventRepository;
     private final DataPlatformClient dataPlatformClient;
+    private final RedissonClient redissonClient;
 
     @Scheduled(fixedDelay = 10 * 1000) // 10초마다
     @Transactional
     public void processOutboxEvents() {
-        List<OutboxEvent> pendingEvents = outboxEventRepository.findAllByStatus(OutboxStatus.PENDING);
+        RLock lock = redissonClient.getLock(OUTBOX_SCHEDULER_LOCK);
 
-        for (OutboxEvent event : pendingEvents) {
-            try {
-                process(event);
-                event.publish();
-            } catch (Exception e) {
-                log.error("아웃박스 이벤트 처리 실패: id={}, type={}", event.getId(), event.getEventType(), e);
-                event.fail(e.getMessage());
+        if (!lock.tryLock()) {
+            log.info("다른 서버에서 아웃박스 처리 중, 스킵");
+            return;
+        }
+
+        try {
+            List<OutboxEvent> pendingEvents = outboxEventRepository.findAllByStatus(OutboxStatus.PENDING);
+
+            for (OutboxEvent event : pendingEvents) {
+                try {
+                    process(event);
+                    event.publish();
+                } catch (Exception e) {
+                    log.error("아웃박스 이벤트 처리 실패: id={}, type={}", event.getId(), event.getEventType(), e);
+                    event.fail(e.getMessage());
+                }
+            }
+        } finally {
+            if (lock.isHeldByCurrentThread()) {
+                lock.unlock();
             }
         }
     }
