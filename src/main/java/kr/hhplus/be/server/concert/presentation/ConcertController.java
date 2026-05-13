@@ -21,7 +21,7 @@ public class ConcertController {
     private final ConcertService concertService;
 
     // 예약 가능 날짜 목록 조회
-    @Operation(summary = "예약 가능 날짜 조회", description = "예약 가능한 날짜을 조회합니다")
+    @Operation(summary = "예약 가능 날짜 조회", description = "예약 가능한 날짜를 조회합니다")
     @GetMapping("/{concertId}/schedules")
     public ResponseEntity<Page<ConcertScheduleResponse>> getConcertSchedule(
             @PathVariable Long concertId,
