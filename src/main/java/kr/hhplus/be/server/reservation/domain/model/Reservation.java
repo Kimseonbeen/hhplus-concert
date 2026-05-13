@@ -50,10 +50,6 @@ public class Reservation {
         this.status = ReservationStatus.CONFIRMED;
     }
 
-    public void fail() {
-        this.status = ReservationStatus.PENDING_PAYMENT;
-    }
-
     public void expire() {
         this.status = ReservationStatus.EXPIRED;
     }

@@ -11,7 +11,6 @@ import org.springframework.stereotype.Component;
 import org.springframework.transaction.event.TransactionPhase;
 import org.springframework.transaction.event.TransactionalEventListener;
 
-import static org.springframework.transaction.event.TransactionPhase.BEFORE_COMMIT;
 
 @Slf4j
 @Component
@@ -20,12 +19,6 @@ public class ReservationEventListener {
     private final DataPlatformClient dataPlatformClient;
     private final QueueTokenService queueTokenService;
     private final OutboxEventService outboxEventService;
-
-    // outbox 저장
-    @TransactionalEventListener(phase = BEFORE_COMMIT)
-    public void saveOutbox(PaymentCompletedEvent event) {
-        //orderCreatedEventRepository.save(orderCreatedEvent)
-    }
 
     @Async
     @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)

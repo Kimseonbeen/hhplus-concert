@@ -76,11 +76,4 @@ public class ReservationService {
         reservation.expire();
     }
 
-    @Transactional
-    public void failReserve(Long reservationId) {
-        Reservation reservation = reservationRepository.findByIdAndStatus(reservationId, ReservationStatus.CONFIRMED)
-                .orElseThrow(() -> new ReservationError(ReservationErrorCode.RESERVATION_NOT_FOUND));
-
-        reservation.fail();
-    }
 }
