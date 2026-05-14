@@ -18,6 +18,10 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 
 import java.time.LocalDateTime;
 import java.util.Collections;
@@ -56,37 +60,42 @@ class ConcertServiceTest {
     @DisplayName("성공: 콘서트 ID로 조회 시 예약 가능한 일정만 DTO로 변환되어 반환된다")
     void getConcertSchedules_ShouldReturnAvailableSchedules() {
         // given
+        Pageable pageable = PageRequest.of(0, 10);
         List<ConcertSchedule> availableSchedules = List.of(
                 new ConcertSchedule(100L, TEST_CONCERT_ID, FUTURE_DATE.plusHours(1), ConcertScheduleStatus.AVAILABLE),
                 new ConcertSchedule(101L, TEST_CONCERT_ID, FUTURE_DATE.plusHours(2), ConcertScheduleStatus.AVAILABLE)
         );
+        Page<ConcertSchedule> page = new PageImpl<>(availableSchedules, pageable, availableSchedules.size());
 
-        given(concertScheduleRepository.findAvailableSchedule(TEST_CONCERT_ID)).willReturn(availableSchedules);
+        given(concertScheduleRepository.findAvailableSchedule(TEST_CONCERT_ID, pageable)).willReturn(page);
 
         // when
-        List<ConcertScheduleResponse> result = concertService.getConcertSchedules(TEST_CONCERT_ID);
+        Page<ConcertScheduleResponse> result = concertService.getConcertSchedules(TEST_CONCERT_ID, pageable);
 
         // then
         assertThat(result).hasSize(2);
-        assertThat(result.get(0).concertScheduleId()).isEqualTo(100L);
-        verify(concertScheduleRepository).findAvailableSchedule(TEST_CONCERT_ID);
+        assertThat(result.getContent().get(0).concertScheduleId()).isEqualTo(100L);
+        verify(concertScheduleRepository).findAvailableSchedule(TEST_CONCERT_ID, pageable);
     }
     
     @Test
     @DisplayName("실패 : 콘서트 ID로 조회 시 예약 가능한 일정이 없으면 CONCERT_NOT_FOUND 예외를 발생시킨다")
     void getConcertSchedules_ShouldThrowException_WhenNoSchedulesFound() {
         // given
-        given(concertScheduleRepository.findAvailableSchedule(TEST_CONCERT_ID)).willReturn(Collections.emptyList());
+        Pageable pageable = PageRequest.of(0, 10);
+        Page<ConcertSchedule> emptyPage = Page.empty(pageable);
+
+        given(concertScheduleRepository.findAvailableSchedule(TEST_CONCERT_ID, pageable)).willReturn(emptyPage);
 
         // when
         ConcertException exception = assertThrows(ConcertException.class, () -> {
-            concertService.getConcertSchedules(TEST_CONCERT_ID);
+            concertService.getConcertSchedules(TEST_CONCERT_ID, pageable);
         });
 
         // then
         assertThat(exception.getErrorCode()).isEqualTo(ConcertErrorCode.CONCERT_NOT_FOUND.getCode());
         assertThat(exception.getStatus()).isEqualTo(ConcertErrorCode.CONCERT_NOT_FOUND.getStatus());
-        verify(concertScheduleRepository).findAvailableSchedule(TEST_CONCERT_ID);
+        verify(concertScheduleRepository).findAvailableSchedule(TEST_CONCERT_ID, pageable);
 
     }
 
