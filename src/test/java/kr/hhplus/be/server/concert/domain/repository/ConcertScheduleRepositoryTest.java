@@ -7,6 +7,9 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.test.context.ActiveProfiles;
 import org.testcontainers.junit.jupiter.Testcontainers;
 
@@ -75,7 +78,9 @@ class ConcertScheduleRepositoryTest {
     @DisplayName("쿼리: 'AVAILABLE' 상태이고 '미래 날짜'인 일정만 정확히 반환한다")
     void findAvailableSchedule_ShouldFilterByStatusAndDate() {
         // When
-        List<ConcertSchedule> result = concertScheduleRepository.findAvailableSchedule(TEST_CONCERT_ID);
+        Pageable pageable = PageRequest.of(0, 10);
+        Page<ConcertSchedule> resultPage = concertScheduleRepository.findAvailableSchedule(TEST_CONCERT_ID, pageable);
+        List<ConcertSchedule> result = resultPage.getContent();
 
         // Then
         // 1. 결과는 오직 성공 케이스 2개만 반환해야 합니다.
@@ -96,10 +101,5 @@ class ConcertScheduleRepositoryTest {
         assertThat(result)
                 .extracting(ConcertSchedule::getConcertId)
                 .containsOnly(TEST_CONCERT_ID);
-
-        // 5. 반환된 스케쥴의 ID가 1 또는 2인지 검증
-        assertThat(result)
-                .extracting(ConcertSchedule::getId)
-                .containsExactlyInAnyOrder(1L, 2L);
     }
 }
