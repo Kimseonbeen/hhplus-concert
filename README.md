@@ -170,6 +170,16 @@ git push → GitHub Actions
 
 ---
 
+## 트러블슈팅 & 기술적 고민
+
+- [인덱스 설계 및 성능 개선](docs/troubleshooting/index-performance.md)
+- [예약 플로우 성능 테스트](docs/troubleshooting/reservation-flow-performance.md)
+- [Saga 패턴 설계](docs/troubleshooting/saga-pattern.md)
+- [아웃박스 패턴 설계](docs/troubleshooting/outbox-pattern.md)
+- [버그픽스: 토큰 만료 타이밍](docs/bugfix/token-expiry-after-commit.md)
+
+---
+
 ## 문서
 
 - [마일스톤](https://github.com/users/Kimseonbeen/projects/2/views/3)
@@ -177,4 +187,3 @@ git push → GitHub Actions
 - [플로우 차트](https://github.com/Kimseonbeen/hhplus-concert/wiki/%ED%94%8C%EB%A1%9C%EC%9A%B0-%EC%B0%A8%ED%8A%B8)
 - [ERD](https://github.com/Kimseonbeen/hhplus-concert/wiki/ERD)
 - [CI/CD 구성 및 트러블슈팅](docs/cicd/github-actions-ec2-deploy.md)
-- [버그픽스: 토큰 만료 타이밍](docs/bugfix/token-expiry-after-commit.md)
