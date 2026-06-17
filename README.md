@@ -12,7 +12,6 @@
 | **Framework** | Spring Boot 3.4.1 |
 | **Database** | MySQL 8.0 |
 | **Cache / Queue** | Redis (Bitnami) |
-| **Messaging** | Apache Kafka |
 | **Monitoring** | InfluxDB + Grafana |
 | **Infra** | AWS EC2, Docker, Docker Hub |
 | **CI/CD** | GitHub Actions |
