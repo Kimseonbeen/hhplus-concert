@@ -33,10 +33,11 @@ public class ConcertController {
     // 예약 가능 콘서트 좌석 목록 조회
     @Operation(summary = "예약 가능 좌석 조회", description = "예약 가능한 좌석을 조회합니다")
     @GetMapping("/{concertScheduleId}/seats")
-    public ResponseEntity<ConcertSeatAvailableResponse> getConcertScheduleSeat(@PathVariable Long concertScheduleId) {
+    public ResponseEntity<ConcertSeatAvailableResponse> getConcertScheduleSeat(
+            @PathVariable Long concertScheduleId,
+            @PageableDefault(size = 50) Pageable pageable) {
 
-        // 예약 가능 좌석 조회
-        ConcertSeatAvailableResponse response = concertService.getAvailableSeats(concertScheduleId);
+        ConcertSeatAvailableResponse response = concertService.getAvailableSeats(concertScheduleId, pageable);
 
         return ResponseEntity.ok(response);
     }
