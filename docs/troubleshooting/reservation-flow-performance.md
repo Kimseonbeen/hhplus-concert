@@ -213,39 +213,191 @@ isExpired(): 07:01:26 < LocalDateTime.now() (16:01:xx) → 만료!
 
 ---
 
-## 최종 성능 테스트 결과
+## TPS 스케일업 테스트
 
-| 단계 | avg | p(95) | 임계값 | 상태 |
-|---|---|---|---|---|
-| 1. 토큰 발급 | 6.2ms | 9.4ms | 200ms | ✓ |
-| 2. 스케줄 조회 | 5.7ms | 8.1ms | 500ms | ✓ |
-| 3. 좌석 조회 | 43ms | 50.7ms | 500ms | ✓ |
-| 4. 좌석 예약 | 3.4ms | 5.4ms | 1000ms | ✓ |
-| 5. 결제 | 9.2ms | 12.4ms | 1000ms | ✓ |
+### 배경
 
-모든 단계 임계값 통과. 응답시간 관점에서 정상.
+초기 TPS 50 검증 이후, 실제 콘서트 티켓팅 수준의 트래픽을 검증하기 위해 TPS를 단계적으로 올렸다.
 
 ---
 
-## 예약/결제 실패율 분석
+### 발견된 문제들과 해결 과정
 
-**예약 39% 성공 (137건 실패) — 정상**
+#### 문제 1. DB 데이터 — concert_date 과거 날짜
 
-100개 좌석에 동시 요청이 몰려 같은 좌석을 중복 예약 시도.
-이미 예약된 좌석은 비관적 락 or 낙관적 락으로 실패 처리 → **올바른 동작**.
-성능 문제가 아닌 비즈니스 로직의 정상 동작이다.
+**증상**
+TPS 500으로 올리자 좌석 예약 성공률 1% (3/152).
 
-**결제 85% 성공 (13건 실패) — 정상**
+**원인**
+`concert_schedule.concert_date`가 과거 날짜로 생성된 데이터가 90,001건 존재.
+`ConcertSchedule.checkIsAvailable()`에서 `concertDate.isBefore(LocalDateTime.now())` 검증을 통과하지 못해 `CONCERT_DATE_EXPIRED` 예외 발생.
 
-userId가 1~10 랜덤이라 같은 유저가 동시에 결제를 시도하는 경우 발생.
-잔액 차감에 분산 락이 걸려있어 동시 요청은 락 타임아웃으로 실패 → **동시성 보호가 올바르게 작동**.
+> 앱은 Docker MySQL이 아닌 **Homebrew MySQL(localhost:3306)**에 연결된다.
+> 테스트 전 반드시 아래 쿼리로 확인한다.
 
-**예약 상태 분포 (테스트 후)**
+```sql
+-- 과거 날짜 스케줄 수 확인
+SELECT COUNT(*) FROM concert_schedule WHERE concert_date < CURDATE();
+
+-- 일괄 수정
+UPDATE concert_schedule SET concert_date = '2026-08-01' WHERE concert_date < CURDATE();
 ```
-CONFIRMED      : 78   (결제 완료)
-EXPIRED        : 90   (이미 예약된 좌석 시도 — 정상 실패)
-PENDING_PAYMENT: 14   (동시 락 충돌로 결제 미완료)
+
+**결과**
+수정 후 예약 성공률 1% → 43%로 회복.
+
+---
+
+#### 문제 2. userId 범위 협소로 결제 분산 락 충돌 집중
+
+**증상**
+TPS 500 기준 결제 성공률 55%.
+
+**원인**
+k6 스크립트에서 `userId = Math.floor(Math.random() * 10) + 1`로 10명만 사용.
+500 TPS에서 동일 userId가 동시에 결제 시도 → 잔액 차감 분산 락 충돌 집중.
+
+**해결**
+DB에 유저 200명 + 잔액(10,000,000원) 추가, k6 userId 범위를 1~200으로 확대.
+
+```sql
+INSERT INTO users (name, version)
+SELECT CONCAT('user', n), 0 FROM (WITH RECURSIVE seq(n) AS (
+  SELECT 12 UNION ALL SELECT n+1 FROM seq WHERE n < 200
+) SELECT n FROM seq) t;
+
+INSERT INTO balance (user_id, amount)
+SELECT id, 10000000 FROM users WHERE id >= 11;
 ```
+
+**결과**
+결제 성공률 55% → 100%.
+
+---
+
+#### 문제 3. 좌석 조회 — 페이지네이션 없이 전체 반환
+
+**증상**
+`duration_03_seat` avg 33ms. 다른 단계(1~2ms)보다 10배 이상 느림.
+
+**원인**
+`SeatRepository`가 `scheduleId` 기준 전체 좌석(30,000개)을 한 번에 반환.
+페이지네이션 없이 풀스캔 + 대량 직렬화 발생.
+
+**해결**
+`SeatRepository`에 `Pageable` 파라미터 추가 (기본 50개).
+
+```java
+@Query(value = "select seat_num from seat where concert_schedule_id = :concertScheduleId and status = :status",
+       countQuery = "select count(*) from seat where concert_schedule_id = :concertScheduleId and status = :status",
+       nativeQuery = true)
+Page<Integer> findByConcertScheduleIdAndStatus(
+    @Param("concertScheduleId") Long concertScheduleId,
+    @Param("status") SeatStatus status,
+    Pageable pageable
+);
+```
+
+**결과**
+좌석 조회 avg 33ms → 11ms (TPS 2,000 기준).
+
+---
+
+#### 문제 4. MAX_ACTIVE_USERS 하드코딩
+
+**증상**
+`QueueConstants.MAX_ACTIVE_USERS = 150L`이 코드에 고정되어 있어
+서버 스펙 변경 시 코드 배포 없이 조정 불가.
+
+**해결**
+`application.yml`로 외부화.
+
+```yaml
+queue:
+  token:
+    max-active-users: 150
+```
+
+```java
+@Value("${queue.token.max-active-users}")
+private long maxActiveUsers;
+```
+
+---
+
+### 램프업 vs 스파이크 테스트
+
+초기 테스트는 단계적으로 TPS를 올리는 **램프업(Ramping)** 방식이었다.
+이 방식은 JVM JIT 컴파일, 커넥션 풀 웜업, 캐시 안정화 시간을 주기 때문에
+실제보다 좋은 결과가 나온다.
+
+콘서트 티켓팅은 오픈 순간 모든 사용자가 동시 접속하는 **즉시 스파이크** 패턴이므로
+테스트를 아래와 같이 변경했다.
+
+```javascript
+// 변경 전 — 램프업
+stages: [
+  { duration: '10s', target: 200  },
+  { duration: '20s', target: 2000 },
+  { duration: '20s', target: 5000 },
+  { duration: '10s', target: 200  },
+]
+
+// 변경 후 — 스파이크
+stages: [
+  { duration: '5s',  target: 5000 }, // 즉시 스파이크
+  { duration: '50s', target: 5000 }, // 지속 부하
+  { duration: '5s',  target: 0    },
+]
+```
+
+---
+
+### TPS 단계별 결과 비교
+
+| TPS | 테스트 방식 | 좌석 조회 p(95) | 결제 성공률 | 토큰 p(95) | 임계값 통과 |
+|-----|-----------|--------------|------------|-----------|-----------|
+| 500 | 램프업 | 37ms | 55% | - | ✓ |
+| 1,000 | 램프업 | 26ms | 100% | 2.6ms | ✓ |
+| 2,000 | 램프업 | 19ms | 100% | 2.8ms | ✓ |
+| 3,000 | 램프업 | 21ms | 100% | 2.7ms | ✓ |
+| 5,000 | 램프업 | 16ms | 100% | 28ms | ✓ |
+| **5,000** | **스파이크** | **376ms** | **100%** | **160ms** | **✓** |
+| 10,000 | 스파이크 | - | - | 5,762ms | ✗ (토큰 초과) |
+
+---
+
+### 대기열 설계와 TPS의 관계
+
+```
+TPS 5,000 유입
+      ↓
+  토큰 발급 (Redis)
+      ↓
+  ┌─ WAITING → 즉시 return (DB 부하 없음)
+  └─ ACTIVE 150명 → 풀 플로우 (DB 부하 고정)
+```
+
+TPS가 높아져도 DB에 가는 실제 부하는 `max-active-users`에 의해 고정된다.
+대기열이 없었다면 TPS 5,000 전체가 DB까지 도달해 시스템이 즉시 다운됐을 것이다.
+
+**TPS 10,000에서 실패한 원인**은 DB 과부하가 아니라 Tomcat 스레드 풀(기본 200개)이
+10,000개의 HTTP 연결을 동시에 처리하지 못한 것이다.
+DB 보호는 대기열이 올바르게 수행하고 있었다.
+
+---
+
+### 최종 검증 환경 기준값
+
+| 항목 | 값 | 근거 |
+|-----|---|-----|
+| 목표 TPS | 5,000 (스파이크) | 토큰 p(95) 160ms, 임계값 200ms 이내 |
+| max-active-users | 150 | Hikari pool 20개 기준 커넥션당 7.5명 균형 |
+| Hikari pool-size | 20 | CPU 8코어 기준 적정값 (코어×2+1) |
+| 좌석 조회 페이지 크기 | 50 | 응답 크기와 DB 부하의 균형점 |
+
+> max-active-users와 Hikari pool-size는 함께 조정해야 한다.
+> 서버 스펙이 올라가 pool-size를 늘릴 경우 max-active-users도 비례해서 올린다.
 
 ---
 
