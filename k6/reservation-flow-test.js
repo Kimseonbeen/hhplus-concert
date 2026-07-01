@@ -37,15 +37,14 @@ export let options = {
        * 실제 트래픽(사용자는 서버 상태에 무관하게 요청)을 더 현실적으로 재현한다.
        */
       executor: 'ramping-arrival-rate',
-      startRate: 10,       // 시작 시 초당 10 요청
-      timeUnit: '1s',      // startRate 단위 = 1초
-      preAllocatedVUs: 50, // 미리 준비해둘 VU 수 (부하 시작 시 즉시 투입)
-      maxVUs: 200,         // VU 최대 한도 (톰캣 기본 쓰레드풀 200개 기준)
+      startRate: 10,        // 시작 시 초당 10 요청
+      timeUnit: '1s',       // startRate 단위 = 1초
+      preAllocatedVUs: 2000,  // 미리 준비해둘 VU 수 (부하 시작 시 즉시 투입)
+      maxVUs: 8000,           // VU 최대 한도
       stages: [
-        { duration: '10s', target: 10 }, // 워밍업: JVM JIT, DB 커넥션 풀, 캐시 안정화
-        { duration: '20s', target: 30 }, // 부하 증가: 서버가 부하를 받기 시작
-        { duration: '20s', target: 50 }, // 피크: 실제 성능 측정 구간 (p95 기준값 결정)
-        { duration: '10s', target: 10 }, // 부하 감소: 서버 정상 회복 여부 확인
+        { duration: '5s',  target: 5000 }, // 즉시 스파이크: 콘서트 오픈 순간 재현
+        { duration: '50s', target: 5000 }, // 지속 부하: 피크 구간 실제 성능 측정
+        { duration: '5s',  target: 0    }, // 종료
       ],
     },
   },
@@ -192,9 +191,9 @@ const SEATS = [
  * 여러 VU가 동시에 실행 → 서버 입장에서는 동시 HTTP 요청 발생.
  */
 export default function () {
-  // userId 1~10 중 랜덤 선택 (10명의 유저가 동시에 예약하는 상황 재현)
-  // 같은 userId 동시 결제 시 분산 락 충돌로 일부 실패 → 동시성 보호 정상 동작
-  const userId = Math.floor(Math.random() * 10) + 1;
+  // userId 1~200 중 랜덤 선택 (200명의 유저가 동시에 예약하는 상황 재현)
+  // 유저 풀을 넓혀 동일 userId 동시 결제 충돌(분산 락) 빈도를 낮춤
+  const userId = Math.floor(Math.random() * 200) + 1;
 
   // ── 1단계: 토큰 발급 ──────────────────────────────────────────────────────
   // Redis 기반. MAX_ACTIVE_USERS(150) 슬롯이 남아있으면 ACTIVE, 아니면 WAITING 반환.
