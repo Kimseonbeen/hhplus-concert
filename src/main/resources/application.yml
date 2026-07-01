@@ -1,3 +1,7 @@
+queue:
+  token:
+    max-active-users: 150
+
 spring:
   application:
     name: hhplus
