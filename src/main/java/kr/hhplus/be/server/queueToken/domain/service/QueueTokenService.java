@@ -2,17 +2,15 @@ package kr.hhplus.be.server.queueToken.domain.service;
 
 import kr.hhplus.be.server.queueToken.domain.exception.QueueTokenException;
 import kr.hhplus.be.server.queueToken.domain.exception.QueueTokenErrorCode;
-import kr.hhplus.be.server.queueToken.domain.model.QueueConstants;
 import kr.hhplus.be.server.queueToken.domain.model.QueueToken;
 import kr.hhplus.be.server.queueToken.domain.model.QueueTokenStatus;
 import kr.hhplus.be.server.queueToken.domain.repository.QueueTokenRepository;
 import kr.hhplus.be.server.queueToken.presentation.dto.response.QueueTokenResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
-import java.time.LocalDateTime;
 
 @Service
 @RequiredArgsConstructor
@@ -20,15 +18,15 @@ import java.time.LocalDateTime;
 public class QueueTokenService {
 
     private final QueueTokenRepository queueTokenRepository;
-    private static final long MAX_ACTIVE_TOKEN_COUNT = QueueConstants.MAX_ACTIVE_USERS;
+
+    @Value("${queue.token.max-active-users}")
+    private long maxActiveUsers;
 
     @Transactional
     public QueueToken createToken(Long userId) {
-        // ACTIVE 토큰 확인
         Long activeCount = queueTokenRepository.getActiveTokenCount();
 
-        // 서비스 계층에서 status 결정
-        QueueTokenStatus status = (activeCount < QueueConstants.MAX_ACTIVE_USERS) ?
+        QueueTokenStatus status = (activeCount < maxActiveUsers) ?
                 QueueTokenStatus.ACTIVE : QueueTokenStatus.WAITING;
 
         // 도메인 팩토리에 필요한 최소 정보만 전달
@@ -68,8 +66,8 @@ public class QueueTokenService {
     public void activateNextWaitingToken() {
         Long activeTokenCount = queueTokenRepository.getActiveTokenCount();
 
-        if (activeTokenCount < MAX_ACTIVE_TOKEN_COUNT) {
-            long needs = MAX_ACTIVE_TOKEN_COUNT - activeTokenCount;
+        if (activeTokenCount < maxActiveUsers) {
+            long needs = maxActiveUsers - activeTokenCount;
 
             // [핵심 변경] 원자적 전환 메서드 호출
             long activatedCount = queueTokenRepository.atomicallyActivateWaitingTokens(needs);
