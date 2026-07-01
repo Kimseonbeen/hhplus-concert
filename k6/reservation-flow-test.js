@@ -42,8 +42,8 @@ export let options = {
       preAllocatedVUs: 2000,  // 미리 준비해둘 VU 수 (부하 시작 시 즉시 투입)
       maxVUs: 8000,           // VU 최대 한도
       stages: [
-        { duration: '5s',  target: 5000 }, // 즉시 스파이크: 콘서트 오픈 순간 재현
-        { duration: '50s', target: 5000 }, // 지속 부하: 피크 구간 실제 성능 측정
+        { duration: '5s',  target: 4000 }, // 즉시 스파이크: 콘서트 오픈 순간 재현
+        { duration: '50s', target: 4000 }, // 지속 부하: 피크 구간 실제 성능 측정
         { duration: '5s',  target: 0    }, // 종료
       ],
     },
