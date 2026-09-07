@@ -15,6 +15,11 @@ public class Seat {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    // JPA 낙관적 락(Optimistic Lock)용 버전 컬럼.
+    // 두 트랜잭션이 동시에 같은 좌석을 조회 후 각각 update를 시도하면,
+    // 먼저 커밋한 쪽만 성공하고 나머지는 버전 불일치로 OptimisticLockException 발생.
+    // 좌석 예약은 충돌 빈도가 낮고 "실패 시 재조회 유도"가 자연스러운 흐름이라
+    // 매 요청마다 락을 거는 비관적 락 대신 낙관적 락을 선택했다.
     @Version
     private Long version;
 

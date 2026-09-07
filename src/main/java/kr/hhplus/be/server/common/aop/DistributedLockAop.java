@@ -51,6 +51,10 @@ public class DistributedLockAop {
 
             /**
              * 0: 락 획득 대기시간 (즉시 시도)
+             * 주의: DistributedLock.waitTime()은 로그 출력에만 쓰이고 실제 tryLock에는
+             * 반영되지 않는다(항상 0 = 즉시 실패). 대기 없이 바로 TooManyRequestsException을
+             * 던지는 fail-fast 정책으로 동작 중 — waitTime 필드를 실제로 쓰려면
+             * tryLock(distributedLock.waitTime(), ...)로 바꿔야 한다.
              */
             boolean acquired = rLock.tryLock(0, distributedLock.leaseTime(), distributedLock.timeUnit());
             if (!acquired) {

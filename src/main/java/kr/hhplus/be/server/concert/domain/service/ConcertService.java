@@ -44,6 +44,11 @@ public class ConcertService {
         return ConcertSeatAvailableResponse.from(schedule, availableSeats);
     }
 
+    // 동시에 여러 사용자가 같은 좌석을 예약 시도할 때의 동시성 제어는
+    // 여기서 직접 처리하지 않고 Seat의 @Version(낙관적 락)에 위임한다.
+    // update 시점에 버전이 어긋나면 OptimisticLockException이 발생하고,
+    // 이 예외는 호출부(ReservationFacade)에서 SEAT_RESERVATION_CONFLICT로 변환해
+    // 클라이언트가 "다른 사람이 선점함"을 알고 재시도하도록 안내한다.
     @Transactional
     public SeatResult reserveSeat(Long seatId) {
         Seat seat = seatRepository.findById(seatId)

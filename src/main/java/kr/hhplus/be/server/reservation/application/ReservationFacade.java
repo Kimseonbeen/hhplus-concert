@@ -27,6 +27,13 @@ import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+/**
+ * 예약~결제 전체 흐름을 조율하는 Saga 오케스트레이터 역할.
+ * 좌석 예약(concert), 예약 생성(reservation), 잔액 차감(balance), 결제(payment)가
+ * 서로 다른 애그리거트/트랜잭션 경계를 가지므로 하나의 ACID 트랜잭션으로 묶지 않고,
+ * 이 클래스가 중앙에서 순서를 제어하며 특정 단계 실패 시 이전 단계를 보상(compensate)한다.
+ * (예: 결제 실패 시 이미 커밋된 잔액 차감을 increase()로 직접 되돌림 — completePayment 참고)
+ */
 @Slf4j
 @Service
 @RequiredArgsConstructor

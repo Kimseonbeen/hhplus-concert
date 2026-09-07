@@ -19,6 +19,10 @@ public class BalanceService {
     private final BalanceRepository balanceRepository;
     private final BalanceHistoryRepository balanceHistoryRepository;
 
+    // 잔액 충전/차감은 좌석 예약과 달리 "동시에 같은 유저가 여러 요청을 보내는" 충돌이
+    // 실제로 자주 발생할 수 있고, 실패 후 재시도를 유저에게 맡기기 부적절한 도메인(돈)이라
+    // 낙관적 락 대신 Redisson 분산 락을 사용해 같은 userId에 대한 요청을 직렬화한다.
+    // key에 userId를 포함해 "유저 단위"로만 락을 걸고, 다른 유저의 요청은 대기 없이 처리되게 한다.
     @DistributedLock(key = "'point :' + #userId")
     public void decrease(Long userId, Long amount) {
         // 1. 잔액 조회
